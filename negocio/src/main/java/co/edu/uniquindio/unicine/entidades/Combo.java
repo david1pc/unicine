@@ -15,9 +15,8 @@ import java.io.Serializable;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString
 @Entity
-public class Boleto implements Serializable {
+public class Combo implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_boleto;
-    private String silla;
+    private Integer codigo;
 }

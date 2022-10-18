@@ -13,14 +13,14 @@ import java.util.List;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString
 @Entity
-public class Confiteria implements Serializable {
+public class DistribucionSillas implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer codigo;
-    private String nombre;
-    private Double precio;
-    private String descripcion;
-    private String imagen;
-    @OneToMany(mappedBy = "confiteria")
-    private List<CompraConfiteria>compraConfiterias;
+    private String esquema;
+    private Integer total_sillas;
+    private Character filas;
+    private Integer columnas;
+    @OneToMany(mappedBy = "distribucionSillas")
+    private List<Sala>salas;
 }

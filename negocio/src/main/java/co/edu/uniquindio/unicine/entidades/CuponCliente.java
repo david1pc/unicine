@@ -4,7 +4,6 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.List;
 
 @Getter
 @Setter
@@ -13,14 +12,16 @@ import java.util.List;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString
 @Entity
-public class Confiteria implements Serializable {
+public class CuponCliente implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer codigo;
-    private String nombre;
-    private Double precio;
-    private String descripcion;
-    private String imagen;
-    @OneToMany(mappedBy = "confiteria")
-    private List<CompraConfiteria>compraConfiterias;
+    private String estado;
+    @OneToOne(mappedBy = "cuponCliente")
+    private Compra compra;
+    @ManyToOne
+    private Cupon cupon;
+    @ManyToOne
+    private Cliente cliente;
+
 }

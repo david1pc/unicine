@@ -2,11 +2,9 @@ package co.edu.uniquindio.unicine.entidades;
 
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Getter
 @Setter
@@ -18,12 +16,19 @@ import java.io.Serializable;
 public class Funcion implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_funcion;
+    private Integer codigo;
     private String nombre;
     private String enlace_trailer;
     private String idioma;
     private String reparto;
     private String clasificacion;
     private Double precio;
-
+    @ManyToOne
+    private Sala sala;
+    @ManyToOne
+    private Horario horario;
+    @ManyToOne
+    private Pelicula pelicula;
+    @OneToMany(mappedBy = "funcion")
+    private List<Compra>compras;
 }

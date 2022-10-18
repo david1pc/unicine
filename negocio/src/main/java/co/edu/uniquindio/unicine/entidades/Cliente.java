@@ -2,11 +2,9 @@ package co.edu.uniquindio.unicine.entidades;
 
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Getter
 @Setter
@@ -17,10 +15,14 @@ import java.io.Serializable;
 @Entity
 public class Cliente implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_cliente;
+    private Integer cedula;
     private String nombre;
-    private String apellido;
-    private String documento;
+    private String correo;
+    private String password;
     private String imagen_perfil;
+    private String estado;
+    @OneToMany(mappedBy = "cliente")
+    private List<Compra>compras;
+    @OneToMany(mappedBy = "cliente")
+    private List<CuponCliente>cuponClientes;
 }
