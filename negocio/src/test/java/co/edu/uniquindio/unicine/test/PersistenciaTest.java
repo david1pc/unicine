@@ -1,6 +1,5 @@
 package co.edu.uniquindio.unicine.test;
 
-import ch.qos.logback.core.CoreConstants;
 import co.edu.uniquindio.unicine.entidades.Cliente;
 import co.edu.uniquindio.unicine.repo.ClienteRepo;
 import org.junit.jupiter.api.Assertions;
@@ -15,7 +14,7 @@ import java.util.Optional;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class ClienteTest {
+public class PersistenciaTest {
     @Autowired
     private ClienteRepo clienteRepo;
     @Test

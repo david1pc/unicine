@@ -3,6 +3,7 @@ package co.edu.uniquindio.unicine.entidades;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.persistence.criteria.CriteriaBuilder;
 import java.io.Serializable;
 import java.util.List;
 
@@ -23,8 +24,10 @@ public class Pelicula implements Serializable {
     private String url_img;
     @Enumerated(EnumType.STRING)
     private Genero genero;
-    private String estado;
+    private Boolean estado;
     private String reparto;
     @OneToMany(mappedBy = "pelicula")
     private List<Funcion>funciones;
+
+
 }

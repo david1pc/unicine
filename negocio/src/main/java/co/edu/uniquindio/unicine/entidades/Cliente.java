@@ -18,11 +18,11 @@ public class Cliente implements Serializable {
     private Integer cedula;
     private String nombre;
     private String correo;
+    private String password;
+    private Boolean estado;
     @ElementCollection
     private List<String> telefonos;
-    private String password;
     private String imagen_perfil;
-    private String estado;
     @OneToMany(mappedBy = "cliente")
     private List<Compra>compras;
     @OneToMany(mappedBy = "cliente")
