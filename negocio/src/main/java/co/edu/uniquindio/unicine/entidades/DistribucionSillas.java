@@ -19,8 +19,9 @@ public class DistribucionSillas implements Serializable {
     private Integer codigo;
     private String esquema;
     private Integer total_sillas;
-    private Character filas;
+    private Integer filas;
     private Integer columnas;
+    @ToString.Exclude
     @OneToMany(mappedBy = "distribucionSillas")
     private List<Sala>salas;
 }

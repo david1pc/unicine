@@ -9,13 +9,16 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
+@Builder
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString
 @Entity
 public class Cliente implements Serializable {
     @Id
-    private Integer cedula;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer codigo;
+    private String cedula;
     private String nombre;
     private String correo;
     private String password;
@@ -23,8 +26,10 @@ public class Cliente implements Serializable {
     @ElementCollection
     private List<String> telefonos;
     private String imagen_perfil;
+    @ToString.Exclude
     @OneToMany(mappedBy = "cliente")
     private List<Compra>compras;
+    @ToString.Exclude
     @OneToMany(mappedBy = "cliente")
     private List<CuponCliente>cuponClientes;
 }

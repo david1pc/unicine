@@ -16,9 +16,8 @@ public class CompraConfiteria implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer codigo;
-    private String nombre;
+    private Integer cantidad;
     private Double precio;
-    private String url_img;
     @ManyToOne
     private Compra compra;
     @ManyToOne

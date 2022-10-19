@@ -23,6 +23,7 @@ public class Teatro implements Serializable {
     private Administrador administrador;
     @ManyToOne
     private Ciudad ciudad;
+    @ToString.Exclude
     @OneToMany(mappedBy = "teatro")
     private List<Sala>salas;
 }

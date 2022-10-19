@@ -21,6 +21,7 @@ public class Cupon implements Serializable {
     private Integer descuento;
     private String criterio;
     private String vencimiento;
+    @ToString.Exclude
     @OneToMany(mappedBy = "cupon")
     private List<CuponCliente>cuponClientes;
 }

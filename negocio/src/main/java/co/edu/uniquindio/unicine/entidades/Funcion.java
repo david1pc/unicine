@@ -24,6 +24,7 @@ public class Funcion implements Serializable {
     private Horario horario;
     @ManyToOne
     private Pelicula pelicula;
+    @ToString.Exclude
     @OneToMany(mappedBy = "funcion")
     private List<Compra>compras;
 }

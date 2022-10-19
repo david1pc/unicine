@@ -27,6 +27,7 @@ public class Pelicula implements Serializable {
     private Genero genero;
     private Boolean estado;
     private String reparto;
+    @ToString.Exclude
     @OneToMany(mappedBy = "pelicula")
     private List<Funcion>funciones;
 

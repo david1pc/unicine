@@ -5,6 +5,7 @@ import net.bytebuddy.asm.Advice;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -21,12 +22,14 @@ public class Compra implements Serializable {
     private Integer codigo;
     @Enumerated(EnumType.STRING)
     private MedioPago medioPago;
-    private LocalDateTime fecha_compra;
+    private LocalDate fecha_compra;
     private Double valor_total;
     @ManyToOne
     private Funcion funcion;
+    @ToString.Exclude
     @OneToMany(mappedBy = "compra")
     private List<Entrada>entradas;
+    @ToString.Exclude
     @OneToMany(mappedBy = "compra")
     private List<CompraConfiteria>compraConfiterias;
     @OneToOne

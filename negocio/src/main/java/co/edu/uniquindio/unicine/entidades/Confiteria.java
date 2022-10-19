@@ -21,6 +21,7 @@ public class Confiteria implements Serializable {
     private Double precio;
     private String descripcion;
     private String imagen;
+    @ToString.Exclude
     @OneToMany(mappedBy = "confiteria")
     private List<CompraConfiteria>compraConfiterias;
 }

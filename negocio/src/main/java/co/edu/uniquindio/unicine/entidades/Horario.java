@@ -19,8 +19,11 @@ public class Horario implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer codigo;
-    private LocalDate fecha;
     private LocalTime hora;
+    private String dia;
+    private LocalDate fecha_inicio;
+    private LocalDate fecha_fin;
+    @ToString.Exclude
     @OneToMany(mappedBy = "horario")
     private List<Funcion>funciones;
 }

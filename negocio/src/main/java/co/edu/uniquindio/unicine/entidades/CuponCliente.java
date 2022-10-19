@@ -17,8 +17,6 @@ public class CuponCliente implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer codigo;
     private Boolean estado;
-    @OneToOne(mappedBy = "cuponCliente")
-    private Compra compra;
     @ManyToOne
     private Cupon cupon;
     @ManyToOne
