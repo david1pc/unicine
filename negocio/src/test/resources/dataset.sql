@@ -35,4 +35,11 @@ insert into ciudad values (3,"Bogota");
 insert into ciudad values (4,"Manizalez");
 insert into ciudad values (5,"Pereira");
 
-insert into funcion values (1,"","","","",20.000,"",3,1,1)
+insert into funcion values (1,3000,1,1)
+
+
+
+insert into horario values (1,"LMXJVSD","2022-10-06","20:00","2022-09-16");
+
+
+insert into sala values (1,"Sala1",1,1);

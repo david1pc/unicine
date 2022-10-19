@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface FuncionRepo extends JpaRepository<Funcion,Integer> {
-    @Query("select f.pelicula.nombre from Funcion f where f.codigo = :codigoFuncion")
-    String obtenerNombrePelicula(Integer codigoFuncion);
 
+@Query("select f from Funcion f where f.codigo = :codigoFuncion")
+    String obtenerNombrePelicula(Integer codigoFuncion);
 }
