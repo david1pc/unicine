@@ -12,4 +12,5 @@ public enum Genero {
     ANIMADA,
     DRAMA,
     TERROR
+
 }

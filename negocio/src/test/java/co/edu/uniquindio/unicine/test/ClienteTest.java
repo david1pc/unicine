@@ -14,7 +14,7 @@ import java.util.Optional;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class PersistenciaTest {
+public class ClienteTest {
     @Autowired
     private ClienteRepo clienteRepo;
     @Test

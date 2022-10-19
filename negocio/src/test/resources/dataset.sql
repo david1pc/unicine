@@ -34,3 +34,5 @@ insert into ciudad values (2,"Cali");
 insert into ciudad values (3,"Bogota");
 insert into ciudad values (4,"Manizalez");
 insert into ciudad values (5,"Pereira");
+
+insert into funcion values (1,"","","","",20.000,"",3,1,1)

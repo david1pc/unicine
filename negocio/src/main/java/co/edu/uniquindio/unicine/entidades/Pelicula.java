@@ -5,6 +5,7 @@ import lombok.*;
 import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -28,6 +29,5 @@ public class Pelicula implements Serializable {
     private String reparto;
     @OneToMany(mappedBy = "pelicula")
     private List<Funcion>funciones;
-
 
 }
