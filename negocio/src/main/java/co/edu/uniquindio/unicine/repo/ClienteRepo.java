@@ -8,10 +8,13 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ClienteRepo extends JpaRepository<Cliente,Integer> {
-    Cliente findByCorreo(String correo);
+    Optional<Cliente> findByCorreo(String correo);
+
+    Optional<Cliente> findByCedula(String cedula);
     Cliente findByCorreoAndPassword(String email, String clave);
     @Query("select c from Cliente c where c.correo = :correo and c.password = :password")
     Cliente comprobarAutenticacion(String correo, String password);
@@ -21,10 +24,4 @@ public interface ClienteRepo extends JpaRepository<Cliente,Integer> {
 
     @Query("select comp from Cliente cli join cli.compras comp where cli.correo = :correo")
     List<Compra> obtenerCompras(String correo);
-    /*
-
-    @Query("select comp from Cliente cli join cli.compras comp where cli.correo = :correo")
-    List<Compra> obtenerCompras(String correo);
-    */
-
 }

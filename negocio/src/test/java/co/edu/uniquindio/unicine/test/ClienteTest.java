@@ -22,9 +22,10 @@ public class ClienteTest {
     @Test
     @Sql("classpath:dataset.sql")
     public void registrar(){
-        Cliente cliente = new Cliente();
-        cliente.builder().cedula("123456").nombre("David").correo("david@gmail.com").estado(true).imagen_perfil("rgregegr")
-                .password("dadfr").build();
+        Cliente cliente = new Cliente("David", "Rodriguez", "asdd@gmail.com", "1094", "1094", true, "asdf", null);
+        //cliente.builder().cedula("123456").("David").correo("david@gmail.com").estado(true).imagen_perfil("rgregegr")
+                //.password("dadfr").build();
+
         Cliente guardado = clienteRepo.save(cliente);
         Assertions.assertNotNull(guardado);
     }
@@ -62,8 +63,8 @@ public class ClienteTest {
     @Test
     @Sql("classpath:dataset.sql")
     public void obtenerPorCorreo(){
-        Optional<Cliente> buscado= Optional.ofNullable(clienteRepo.findByCorreo("juan@email.com"));
-        Assertions.assertNotNull(buscado.orElse(null));
+        Cliente buscado= clienteRepo.findByCorreo("juan@email.com").orElse(null);
+        Assertions.assertNotNull(buscado);
     }
     @Test
     @Sql("classpath:dataset.sql")

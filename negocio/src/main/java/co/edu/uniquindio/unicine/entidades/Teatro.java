@@ -20,7 +20,7 @@ public class Teatro implements Serializable {
     private String direccion;
     private String telefono;
     @ManyToOne
-    private Administrador administrador;
+    private AdministradorTeatro administradorTeatro;
     @ManyToOne
     private Ciudad ciudad;
     @ToString.Exclude

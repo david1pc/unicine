@@ -1,8 +1,8 @@
-insert into cliente(cedula, correo, estado, imagen_perfil, nombre, password) values ("1852151","juan@email.com",0,"img","juan","51321354");
-insert into cliente(cedula, correo, estado, imagen_perfil, nombre, password)values ("1051211","manuel@email.com",1,"img","manuel","65151321");
-insert into cliente(cedula, correo, estado, imagen_perfil, nombre, password) values ("2151541","pedro@email.com",0,"img","pedro","78978988");
-insert into cliente(cedula, correo, estado, imagen_perfil, nombre, password) values ("1224544","pablo@email.com",1,"img","pablo","5321222");
-insert into cliente(cedula, correo, estado, imagen_perfil, nombre, password) values ("9522222","emilio@email.com",0,"img","emilio","1111000");
+insert into cliente(cedula, correo, estado, imagen_perfil, primer_nombre, primer_apellido, password) values ("1852151","juan@email.com",0,"img","juan","manuel","51321354");
+insert into cliente(cedula, correo, estado, imagen_perfil, primer_nombre, primer_apellido, password)values ("1051211","manuel@email.com",1,"img","manuel","pedro","65151321");
+insert into cliente(cedula, correo, estado, imagen_perfil, primer_nombre, primer_apellido, password) values ("2151541","pedro@email.com",0,"img","pedro","pablo","78978988");
+insert into cliente(cedula, correo, estado, imagen_perfil, primer_nombre, primer_apellido, password) values ("1224544","pablo@email.com",1,"img","pablo","garcia","5321222");
+insert into cliente(cedula, correo, estado, imagen_perfil, primer_nombre, primer_apellido, password) values ("9522222","emilio@email.com",0,"img","emilio","jimenez","1111000");
 
 insert into cliente_telefonos values (1,"651651111");
 insert into cliente_telefonos values (2,"7874152");
@@ -10,11 +10,17 @@ insert into cliente_telefonos values (3,"6532181");
 insert into cliente_telefonos values (4,"321645444");
 insert into cliente_telefonos values (5,"321645444");
 
-insert into administrador(correo, password) values ("admin1@email.com","125ads");
-insert into administrador(correo, password) values ("admin2@email.com","25ads");
-insert into administrador(correo, password) values ("admin3@email.com","2ads");
-insert into administrador(correo, password) values ("admin4@email.com","5ads");
-insert into administrador(correo, password) values ("admin5@email.com","1ads");
+insert into administrador(correo, password, primer_nombre, primer_apellido) values ("admin1@email.com", "125ads","Manuel","Ramirez");
+insert into administrador(correo, password, primer_nombre, primer_apellido) values ("admin2@email.com","25ads","David","Fernando");
+insert into administrador(correo, password, primer_nombre, primer_apellido) values ("admin3@email.com","2ads","Sebastian","juan");
+insert into administrador(correo, password, primer_nombre, primer_apellido) values ("admin4@email.com","5ads","Laura","Restrepo");
+insert into administrador(correo, password, primer_nombre, primer_apellido) values ("admin5@email.com","1ads","Alison","Restrepo");
+
+insert into administrador_teatro(correo, password, primer_nombre, primer_apellido) values ("admin6@email.com", "125ads","Manuela","Ramirez");
+insert into administrador_teatro(correo, password, primer_nombre, primer_apellido) values ("admin7@email.com","25ads","Kevin","Fernando");
+insert into administrador_teatro(correo, password, primer_nombre, primer_apellido) values ("admin8@email.com","2ads","Laura","juan");
+insert into administrador_teatro(correo, password, primer_nombre, primer_apellido) values ("admin9@email.com","5ads","Hernan","Restrepo");
+insert into administrador_teatro(correo, password, primer_nombre, primer_apellido) values ("admin10@email.com","1ads","Pablo","Restrepo");
 
 insert into pelicula(estado, genero, nombre, reparto, sinopsis, url_img, url_trailer) values(1,"TERROR","El Conjuro","actores","sinopsis","img","trailer");
 insert into pelicula(estado, genero, nombre, reparto, sinopsis, url_img, url_trailer) values(1,"ACCION", "El resplandor","actores","sinopsis","img","trailer");
@@ -36,11 +42,11 @@ insert into cupon(descripcion, descuento, criterio, vencimiento) values("Combo d
 insert into cupon(descripcion, descuento, criterio, vencimiento) values("Combo de crispetas", 10, "Solo para compras de mas de 2 entradas", "2022/11/14");
 
 
-insert into teatro(direccion, telefono, administrador_codigo, ciudad_codigo) values("CL 30#15-20", "7525964", 1, 1);
-insert into teatro(direccion, telefono, administrador_codigo, ciudad_codigo) values("CI 20#10-15", "7125813", 2, 2);
-insert into teatro(direccion, telefono, administrador_codigo, ciudad_codigo) values("CL 25#11-15", "7657244", 3, 3);
-insert into teatro(direccion, telefono, administrador_codigo, ciudad_codigo) values("CL 10#5-8", "7116723", 4, 4);
-insert into teatro(direccion, telefono, administrador_codigo, ciudad_codigo) values("CI 11#5-10", "7428934", 5, 5);
+insert into teatro(direccion, telefono, administrador_teatro_codigo, ciudad_codigo) values("CL 30#15-20", "7525964", 1, 1);
+insert into teatro(direccion, telefono, administrador_teatro_codigo, ciudad_codigo) values("CI 20#10-15", "7125813", 2, 2);
+insert into teatro(direccion, telefono, administrador_teatro_codigo, ciudad_codigo) values("CL 25#11-15", "7657244", 3, 3);
+insert into teatro(direccion, telefono, administrador_teatro_codigo, ciudad_codigo) values("CL 10#5-8", "7116723", 4, 4);
+insert into teatro(direccion, telefono, administrador_teatro_codigo, ciudad_codigo) values("CI 11#5-10", "7428934", 5, 5);
 
 insert into distribucion_sillas(esquema, total_sillas, filas, columnas) values("V1", 140, 12, 12);
 insert into distribucion_sillas(esquema, total_sillas, filas, columnas) values("V2", 115, 11, 11);
@@ -54,11 +60,11 @@ insert into sala(nombre, distribucion_sillas_codigo, teatro_codigo) values("SALA
 insert into sala(nombre, distribucion_sillas_codigo, teatro_codigo) values("SALA 2", 4, 2);
 insert into sala(nombre, distribucion_sillas_codigo, teatro_codigo) values("SALA 1", 5, 3);
 
-insert into horario(dia, hora, fecha_inicio, fecha_fin) values("22", "13:00", "2022-10-22", "2022-10-24");
-insert into horario(dia, hora, fecha_inicio, fecha_fin) values("10", "14:00", "2022-11-10", "2022-12-2");
-insert into horario(dia, hora, fecha_inicio, fecha_fin) values("15", "15:00", "2022-10-15", "2022-10-25");
-insert into horario(dia, hora, fecha_inicio, fecha_fin) values("5", "16:00", "2022-12-8", "2022-12-13");
-insert into horario(dia, hora, fecha_inicio, fecha_fin) values("10", "9:00", "2022-12-15", "2022-12-30");
+insert into horario(dia, hora, fecha_inicio, fecha_fin) values("L M MI J", "13:00", "2022-10-22", "2022-10-24");
+insert into horario(dia, hora, fecha_inicio, fecha_fin) values("S D", "14:00", "2022-11-10", "2022-12-2");
+insert into horario(dia, hora, fecha_inicio, fecha_fin) values("L M MI J V", "15:00", "2022-10-15", "2022-10-25");
+insert into horario(dia, hora, fecha_inicio, fecha_fin) values("L M MI J V", "16:00", "2022-12-8", "2022-12-13");
+insert into horario(dia, hora, fecha_inicio, fecha_fin) values("L M MI J V", "9:00", "2022-12-15", "2022-12-30");
 
 insert into funcion(precio, horario_codigo, pelicula_codigo, sala_codigo) values(15500, 1, 1, 1);
 insert into funcion(precio, horario_codigo, pelicula_codigo, sala_codigo) values(20000, 2, 2, 2);

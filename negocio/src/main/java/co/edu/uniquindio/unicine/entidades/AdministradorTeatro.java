@@ -12,18 +12,22 @@ import java.util.List;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString
 @Entity
-public class Administrador extends Persona implements Serializable {
+public class AdministradorTeatro extends Persona implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer codigo;
 
-    public Administrador(String primerNombre, String segundoNombre, String primerApellido, String segundoApellido, String correo,
-                   String password){
+    @ToString.Exclude
+    @OneToMany(mappedBy = "administradorTeatro")
+    private List<Teatro> teatros;
+
+    public AdministradorTeatro(String primerNombre, String segundoNombre, String primerApellido, String segundoApellido, String correo,
+                         String password){
         super(primerNombre, segundoNombre, primerApellido, segundoApellido, correo, password);
     }
 
-    public Administrador(String primerNombre, String primerApellido, String correo,
-                   String password){
+    public AdministradorTeatro(String primerNombre, String primerApellido, String correo,
+                         String password){
         super(primerNombre, primerApellido, correo, password);
     }
 }
