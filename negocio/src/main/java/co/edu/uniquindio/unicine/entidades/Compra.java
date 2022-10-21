@@ -37,4 +37,12 @@ public class Compra implements Serializable {
     @ManyToOne
     private Cliente cliente;
 
+    public Compra(MedioPago medioPago, LocalDate fecha_compra, Double valor_total, Funcion funcion, CuponCliente cuponCliente, Cliente cliente) {
+        this.medioPago = medioPago;
+        this.fecha_compra = fecha_compra;
+        this.valor_total = valor_total;
+        this.funcion = funcion;
+        this.cuponCliente = cuponCliente;
+        this.cliente = cliente;
+    }
 }

@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.List;
 
 @Getter
@@ -20,7 +21,7 @@ public class Cupon implements Serializable {
     private String descripcion;
     private Integer descuento;
     private String criterio;
-    private String vencimiento;
+    private LocalDate vencimiento;
     @ToString.Exclude
     @OneToMany(mappedBy = "cupon")
     private List<CuponCliente>cuponClientes;

@@ -54,11 +54,11 @@ insert into sala(nombre, distribucion_sillas_codigo, teatro_codigo) values("SALA
 insert into sala(nombre, distribucion_sillas_codigo, teatro_codigo) values("SALA 2", 4, 2);
 insert into sala(nombre, distribucion_sillas_codigo, teatro_codigo) values("SALA 1", 5, 3);
 
-insert into horario(dia, hora, fecha_inicio, fecha_fin) values("22", "13:00", "2022/10/22", "2022/10/24");
-insert into horario(dia, hora, fecha_inicio, fecha_fin) values("10", "14:00", "2022/11/10", "2022/12/2");
-insert into horario(dia, hora, fecha_inicio, fecha_fin) values("15", "15:00", "2022/10/15", "2022/10/25");
-insert into horario(dia, hora, fecha_inicio, fecha_fin) values("5", "16:00", "2022/12/8", "2022/12/13");
-insert into horario(dia, hora, fecha_inicio, fecha_fin) values("10", "9:00", "2022/12/15", "2022/12/30");
+insert into horario(dia, hora, fecha_inicio, fecha_fin) values("22", "13:00", "2022-10-22", "2022-10-24");
+insert into horario(dia, hora, fecha_inicio, fecha_fin) values("10", "14:00", "2022-11-10", "2022-12-2");
+insert into horario(dia, hora, fecha_inicio, fecha_fin) values("15", "15:00", "2022-10-15", "2022-10-25");
+insert into horario(dia, hora, fecha_inicio, fecha_fin) values("5", "16:00", "2022-12-8", "2022-12-13");
+insert into horario(dia, hora, fecha_inicio, fecha_fin) values("10", "9:00", "2022-12-15", "2022-12-30");
 
 insert into funcion(precio, horario_codigo, pelicula_codigo, sala_codigo) values(15500, 1, 1, 1);
 insert into funcion(precio, horario_codigo, pelicula_codigo, sala_codigo) values(20000, 2, 2, 2);
@@ -79,11 +79,11 @@ insert into cupon_cliente(estado, cliente_codigo, cupon_codigo) values(1, 3, 1);
 insert into cupon_cliente(estado, cliente_codigo, cupon_codigo) values(1, 4, 2);
 insert into cupon_cliente(estado, cliente_codigo, cupon_codigo) values(1, 5, 1);
 
-insert into compra(medio_pago, fecha_compra, valor_total, cliente_codigo, cupon_cliente_codigo, funcion_codigo) values("EFECTIVO", "2022/10/20", 50400, 1, 1, 1);
-insert into compra(medio_pago, fecha_compra, valor_total, cliente_codigo, cupon_cliente_codigo, funcion_codigo) values("MASTERCARD", "2022/10/21", 45080, 2, 2, 2);
-insert into compra(medio_pago, fecha_compra, valor_total, cliente_codigo, cupon_cliente_codigo, funcion_codigo) values("DAVIPLATA", "2022/10/22", 54000, 3, 1, 3);
-insert into compra(medio_pago, fecha_compra, valor_total, cliente_codigo, cupon_cliente_codigo, funcion_codigo) values("NEQUI", "2022/10/23", 18400, 4, 2, 4);
-insert into compra(medio_pago, fecha_compra, valor_total, cliente_codigo, cupon_cliente_codigo, funcion_codigo) values("NEQUI", "2022/10/24", 11700, 5, 1, 5);
+insert into compra(medio_pago, fecha_compra, valor_total, cliente_codigo, cupon_cliente_codigo, funcion_codigo) values("EFECTIVO", "2022-10-20", 50400, 1, 1, 1);
+insert into compra(medio_pago, fecha_compra, valor_total, cliente_codigo, cupon_cliente_codigo, funcion_codigo) values("MASTERCARD", "2022-10-21", 45080, 2, 2, 2);
+insert into compra(medio_pago, fecha_compra, valor_total, cliente_codigo, cupon_cliente_codigo, funcion_codigo) values("DAVIPLATA", "2022-10-22", 54000, 3, 1, 3);
+insert into compra(medio_pago, fecha_compra, valor_total, cliente_codigo, cupon_cliente_codigo, funcion_codigo) values("NEQUI", "2022-10-23", 18400, 4, 2, 4);
+insert into compra(medio_pago, fecha_compra, valor_total, cliente_codigo, cupon_cliente_codigo, funcion_codigo) values("NEQUI", "2022-10-24", 11700, 5, 1, 5);
 
 insert into entrada(columna, fila, precio, compra_codigo) values("3", "3", 15500, 1);
 insert into entrada(columna, fila, precio, compra_codigo) values("3", "4", 15500, 1);

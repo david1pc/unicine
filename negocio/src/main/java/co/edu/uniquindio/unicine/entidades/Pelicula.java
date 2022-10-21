@@ -11,7 +11,6 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString
 @Entity
@@ -31,4 +30,12 @@ public class Pelicula implements Serializable {
     @OneToMany(mappedBy = "pelicula")
     private List<Funcion>funciones;
 
+    public Pelicula(String nombre, String sinopsis, String url_img, Genero genero, Boolean estado, String reparto) {
+        this.nombre = nombre;
+        this.sinopsis = sinopsis;
+        this.url_img = url_img;
+        this.genero = genero;
+        this.estado = estado;
+        this.reparto = reparto;
+    }
 }
