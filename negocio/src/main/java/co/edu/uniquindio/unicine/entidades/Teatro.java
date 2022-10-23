@@ -26,4 +26,11 @@ public class Teatro implements Serializable {
     @ToString.Exclude
     @OneToMany(mappedBy = "teatro")
     private List<Sala>salas;
+
+    @Builder
+    public Teatro(Integer codigo, String direccion, String telefono) {
+        this.codigo = codigo;
+        this.direccion = direccion;
+        this.telefono = telefono;
+    }
 }

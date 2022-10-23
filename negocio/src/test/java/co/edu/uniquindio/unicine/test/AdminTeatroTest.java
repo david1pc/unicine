@@ -1,9 +1,6 @@
 package co.edu.uniquindio.unicine.test;
 
-import co.edu.uniquindio.unicine.entidades.Funcion;
-import co.edu.uniquindio.unicine.entidades.Genero;
-import co.edu.uniquindio.unicine.entidades.Horario;
-import co.edu.uniquindio.unicine.entidades.Pelicula;
+import co.edu.uniquindio.unicine.entidades.*;
 import co.edu.uniquindio.unicine.servicios.AdminTeatroServicio;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -126,10 +123,66 @@ public class AdminTeatroTest {
 
     @Test
     @Sql("classpath:dataset.sql")
-    public void obtenerFuncionesTest(){
+    public void obtenerFuncionTest(){
         try {
             Funcion funcion = adminTeatroServicio.obtenerFuncion(1);
             Assertions.assertNotNull(funcion);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // Teatros
+    @Test
+    @Sql("classpath:dataset.sql")
+    public void crearTeatrosTest(){
+        Teatro teatro = Teatro.builder().codigo(18).direccion("Enrique segoviano").telefono("73589778").build();
+        try {
+            Teatro nuevoTeatro = adminTeatroServicio.crearTeatro(teatro);
+            Assertions.assertNotNull(nuevoTeatro);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Sql("classpath:dataset.sql")
+    public void actualizarTeatroTest(){
+        try {
+            Teatro teatro = adminTeatroServicio.obtenerTeatro(1);
+            teatro.setDireccion("Avenida siempre viva 123");
+            Teatro teatroNuevo = adminTeatroServicio.actualizarTeatro(teatro);
+            Assertions.assertEquals("Avenida siempre viva 123", teatroNuevo.getDireccion());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Sql("classpath:dataset.sql")
+    public void eliminarTeatroTest(){
+        try {
+            adminTeatroServicio.eliminarTeatro(1);
+            Teatro teatro = adminTeatroServicio.obtenerTeatro(1);
+            Assertions.assertNotNull(teatro);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Sql("classpath:dataset.sql")
+    public void listarTeatrosTest(){
+        List<Teatro> lista = adminTeatroServicio.listarTeatros();
+        lista.forEach(System.out::println);
+    }
+
+    @Test
+    @Sql("classpath:dataset.sql")
+    public void obtenerTeatroTest(){
+        try {
+            Teatro teatro = adminTeatroServicio.obtenerTeatro(1);
+            Assertions.assertNotNull(teatro);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

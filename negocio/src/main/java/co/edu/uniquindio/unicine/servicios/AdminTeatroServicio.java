@@ -22,7 +22,7 @@ public interface AdminTeatroServicio {
 
     Teatro crearTeatro(Teatro teatro)throws Exception;
 
-    Teatro ActualizarTeatro(Teatro teatro)throws Exception;
+    Teatro actualizarTeatro(Teatro teatro)throws Exception;
 
     void eliminarTeatro(Integer codigo)throws Exception;
 

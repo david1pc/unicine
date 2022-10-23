@@ -147,7 +147,7 @@ public class AdminTeatroServicioImpl implements AdminTeatroServicio {
     }
 
     @Override
-    public Teatro ActualizarTeatro(Teatro teatro) throws Exception {
+    public Teatro actualizarTeatro(Teatro teatro) throws Exception {
         boolean teatroExiste = teatroExiste(teatro.getCodigo());
 
         if (!teatroExiste){
