@@ -2,11 +2,9 @@ package co.edu.uniquindio.unicine.entidades;
 
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Getter
 @Setter
@@ -18,5 +16,22 @@ import java.io.Serializable;
 public class Combo implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Integer codigo;
+    private String nombre;
+    private Double precio;
+    private String descripcion;
+    private String imagen;
+    @ToString.Exclude
+    @OneToMany(mappedBy = "combo")
+    private List<CompraCombo> compraCombos;
+
+    @Builder
+    public Combo(Integer codigo, String nombre, Double precio, String descripcion, List<CompraCombo> compraCombos) {
+        this.codigo = codigo;
+        this.nombre = nombre;
+        this.precio = precio;
+        this.descripcion = descripcion;
+        this.compraCombos = compraCombos;
+    }
 }

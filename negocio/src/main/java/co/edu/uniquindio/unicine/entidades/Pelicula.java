@@ -30,6 +30,7 @@ public class Pelicula implements Serializable {
     @OneToMany(mappedBy = "pelicula")
     private List<Funcion>funciones;
 
+    @Builder
     public Pelicula(String nombre, String sinopsis, String url_img, Genero genero, Boolean estado, String reparto) {
         this.nombre = nombre;
         this.sinopsis = sinopsis;

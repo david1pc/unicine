@@ -44,4 +44,11 @@ public class FuncionTest {
         List<Funcion> lista = funcionRepo.findAll();
         lista.forEach(System.out::println);
     }
+
+    @Test
+    @Sql("classpath:dataset.sql")
+    public void listarFuncionesCiudad(){
+        List<Funcion> lista = funcionRepo.listarFuncionesPorCiudad(1);
+        lista.forEach(System.out::println);
+    }
 }

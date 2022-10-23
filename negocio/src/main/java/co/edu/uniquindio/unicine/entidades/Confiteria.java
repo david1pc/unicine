@@ -16,6 +16,7 @@ import java.util.List;
 public class Confiteria implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Integer codigo;
     private String nombre;
     private Double precio;
@@ -24,4 +25,13 @@ public class Confiteria implements Serializable {
     @ToString.Exclude
     @OneToMany(mappedBy = "confiteria")
     private List<CompraConfiteria>compraConfiterias;
+
+    @Builder
+    public Confiteria(Integer codigo, String nombre, Double precio, String descripcion, List<CompraConfiteria> compraConfiterias) {
+        this.codigo = codigo;
+        this.nombre = nombre;
+        this.precio = precio;
+        this.descripcion = descripcion;
+        this.compraConfiterias = compraConfiterias;
+    }
 }

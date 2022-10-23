@@ -9,7 +9,6 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString
 @Entity
 public class Administrador extends Persona implements Serializable {
@@ -22,6 +21,7 @@ public class Administrador extends Persona implements Serializable {
         super(primerNombre, segundoNombre, primerApellido, segundoApellido, correo, password);
     }
 
+    @Builder
     public Administrador(String primerNombre, String primerApellido, String correo,
                    String password){
         super(primerNombre, primerApellido, correo, password);

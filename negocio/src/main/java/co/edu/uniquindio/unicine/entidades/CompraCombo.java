@@ -12,7 +12,7 @@ import java.io.Serializable;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString
 @Entity
-public class CompraConfiteria implements Serializable {
+public class CompraCombo implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
@@ -22,5 +22,5 @@ public class CompraConfiteria implements Serializable {
     @ManyToOne
     private Compra compra;
     @ManyToOne
-    private Confiteria confiteria;
+    private Combo combo;
 }

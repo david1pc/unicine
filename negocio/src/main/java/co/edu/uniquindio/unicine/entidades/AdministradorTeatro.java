@@ -9,7 +9,6 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString
 @Entity
 public class AdministradorTeatro extends Persona implements Serializable {
@@ -21,6 +20,7 @@ public class AdministradorTeatro extends Persona implements Serializable {
     @OneToMany(mappedBy = "administradorTeatro")
     private List<Teatro> teatros;
 
+    @Builder
     public AdministradorTeatro(String primerNombre, String segundoNombre, String primerApellido, String segundoApellido, String correo,
                          String password){
         super(primerNombre, segundoNombre, primerApellido, segundoApellido, correo, password);

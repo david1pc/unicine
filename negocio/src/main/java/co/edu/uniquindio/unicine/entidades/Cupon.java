@@ -25,4 +25,14 @@ public class Cupon implements Serializable {
     @ToString.Exclude
     @OneToMany(mappedBy = "cupon")
     private List<CuponCliente>cuponClientes;
+
+    @Builder
+    public Cupon(Integer codigo, String descripcion, Integer descuento, String criterio, LocalDate vencimiento, List<CuponCliente> cuponClientes) {
+        this.codigo = codigo;
+        this.descripcion = descripcion;
+        this.descuento = descuento;
+        this.criterio = criterio;
+        this.vencimiento = vencimiento;
+        this.cuponClientes = cuponClientes;
+    }
 }

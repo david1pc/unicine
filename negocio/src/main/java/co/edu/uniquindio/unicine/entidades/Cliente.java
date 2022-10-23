@@ -15,6 +15,7 @@ import java.util.List;
 public class Cliente extends Persona implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Integer codigo;
     @Column(nullable = false, unique = true, length = 24)
     private String cedula;
@@ -38,6 +39,7 @@ public class Cliente extends Persona implements Serializable {
         this.telefonos = telefonos;
     }
 
+    @Builder
     public Cliente(String primerNombre, String primerApellido, String correo,
                    String password, String cedula, Boolean estado, String imagen_perfil, List<String> telefonos){
         super(primerNombre, primerApellido, correo, password);

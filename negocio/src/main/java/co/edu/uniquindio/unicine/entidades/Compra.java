@@ -19,6 +19,7 @@ import java.util.List;
 public class Compra implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Integer codigo;
     @Enumerated(EnumType.STRING)
     private MedioPago medioPago;
@@ -26,12 +27,19 @@ public class Compra implements Serializable {
     private Double valor_total;
     @ManyToOne
     private Funcion funcion;
+
     @ToString.Exclude
     @OneToMany(mappedBy = "compra")
     private List<Entrada>entradas;
+
     @ToString.Exclude
     @OneToMany(mappedBy = "compra")
     private List<CompraConfiteria>compraConfiterias;
+
+    @ToString.Exclude
+    @OneToMany(mappedBy = "compra")
+    private List<CompraCombo>compraCombos;
+
     @OneToOne
     private CuponCliente cuponCliente;
     @ManyToOne
