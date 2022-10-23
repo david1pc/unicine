@@ -26,4 +26,12 @@ public class Horario implements Serializable {
     @ToString.Exclude
     @OneToMany(mappedBy = "horario")
     private List<Funcion>funciones;
+
+    @Builder
+    public Horario(LocalTime hora, String dia, LocalDate fecha_inicio, LocalDate fecha_fin) {
+        this.hora = hora;
+        this.dia = dia;
+        this.fecha_inicio = fecha_inicio;
+        this.fecha_fin = fecha_fin;
+    }
 }

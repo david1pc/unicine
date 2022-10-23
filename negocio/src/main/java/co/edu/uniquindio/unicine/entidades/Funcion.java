@@ -27,4 +27,10 @@ public class Funcion implements Serializable {
     @ToString.Exclude
     @OneToMany(mappedBy = "funcion")
     private List<Compra>compras;
+
+    @Builder
+    public Funcion(Integer codigo, Double precio) {
+        this.codigo = codigo;
+        this.precio = precio;
+    }
 }
