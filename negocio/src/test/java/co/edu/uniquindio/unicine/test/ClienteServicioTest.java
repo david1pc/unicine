@@ -21,13 +21,13 @@ public class ClienteServicioTest {
     @Test
     @Sql("classpath:dataset.sql")
     public void registrarClienteTest(){
-        Cliente cliente = new Cliente("David", "Rodriguez", "juan@email.com", "1094", "1094", true, "asdf", null);
+        Cliente cliente = new Cliente(10,"David", "Rodriguez", "juanfeewf@email.com", "1094", "1097584", true, "asdf", null);
 
         try {
             Cliente clienteNuevo = clienteServicio.registrarCliente(cliente);
             Assertions.assertNotNull(clienteNuevo);
         } catch (Exception e) {
-            Assertions.assertTrue(false);
+            throw new RuntimeException(e);
         }
     }
 

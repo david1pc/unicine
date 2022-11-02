@@ -19,12 +19,11 @@ public class AdminTeatroTest {
     @Autowired
     private AdminTeatroServicio adminTeatroServicio;
 
-
     // Horarios
     @Test
     @Sql("classpath:dataset.sql")
     public void crearHorarioTest(){
-        Horario horario = Horario.builder().dia("Lunes").fecha_inicio(LocalDate.parse("2022-10-22")).fecha_fin(LocalDate.parse("2022-11-21")).build();
+        Horario horario = Horario.builder().codigo(10).dia("Lunes").fecha_inicio(LocalDate.parse("2022-10-22")).fecha_fin(LocalDate.parse("2022-11-21")).build();
         try {
             Horario horarioNuevo = adminTeatroServicio.crearHorario(horario);
             Assertions.assertNotNull(horarioNuevo);

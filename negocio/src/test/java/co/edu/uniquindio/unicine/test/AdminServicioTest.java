@@ -46,10 +46,11 @@ public class AdminServicioTest {
     @Test
     @Sql("classpath:dataset.sql")
     public void crearPeliculaTest(){
-        Pelicula pelicula = Pelicula.builder().nombre("Fragmentado").sinopsis("Kevin, un hombre con 23 personalidades, secuestra a 3 chicas jóvenes " +
+        Pelicula pelicula = Pelicula.builder().codigo(10).nombre("Fragmentado").sinopsis("Kevin, un hombre con 23 personalidades, secuestra a 3 chicas jóvenes " +
                 "y las mantiene retenidas en un sótano").url_img("aquinoesta.jpg").genero(Genero.TERROR).estado(true).reparto("James MCavoy").build();
         try {
             Pelicula peliculaNueva = adminServicio.crearPelicula(pelicula);
+            System.out.println(peliculaNueva);
             Assertions.assertNotNull(peliculaNueva);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -271,7 +272,9 @@ public class AdminServicioTest {
     @Test
     @Sql("classpath:dataset.sql")
     public void crearAdminTeatroTest(){
-        AdministradorTeatro admin = AdministradorTeatro.builder().primerNombre("juanito").primerApellido("alimaña").correo("juanitoali@email.com").password("123").build();
+        AdministradorTeatro admin = AdministradorTeatro.builder().codigo(10).primerNombre("juanito").primerApellido("alimaña").
+                correo("juanitoali@email.com").password("123").
+                build();
         try {
             AdministradorTeatro adminNuevo = adminServicio.crearAdministradorTeatro(admin);
             Assertions.assertNotNull(adminNuevo);

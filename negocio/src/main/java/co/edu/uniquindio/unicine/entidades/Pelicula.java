@@ -31,7 +31,8 @@ public class Pelicula implements Serializable {
     private List<Funcion>funciones;
 
     @Builder
-    public Pelicula(String nombre, String sinopsis, String url_img, Genero genero, Boolean estado, String reparto) {
+    public Pelicula(Integer codigo, String nombre, String sinopsis, String url_img, Genero genero, Boolean estado, String reparto) {
+        this.codigo = codigo;
         this.nombre = nombre;
         this.sinopsis = sinopsis;
         this.url_img = url_img;

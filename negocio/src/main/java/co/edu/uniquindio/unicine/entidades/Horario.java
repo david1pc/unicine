@@ -28,7 +28,8 @@ public class Horario implements Serializable {
     private List<Funcion>funciones;
 
     @Builder
-    public Horario(LocalTime hora, String dia, LocalDate fecha_inicio, LocalDate fecha_fin) {
+    public Horario(Integer codigo, LocalTime hora, String dia, LocalDate fecha_inicio, LocalDate fecha_fin) {
+        this.codigo = codigo;
         this.hora = hora;
         this.dia = dia;
         this.fecha_inicio = fecha_inicio;

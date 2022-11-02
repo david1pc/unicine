@@ -22,7 +22,7 @@ public class ClienteTest {
     @Test
     @Sql("classpath:dataset.sql")
     public void registrar(){
-        Cliente cliente = new Cliente("David", "Rodriguez", "asdd@gmail.com", "1094", "1094", true, "asdf", null);
+        Cliente cliente = new Cliente(10, "David", "Rodriguez", "asdd@gmail.com", "1094", "1094", true, "asdf", null);
         //cliente.builder().cedula("123456").("David").correo("david@gmail.com").estado(true).imagen_perfil("rgregegr")
                 //.password("dadfr").build();
 
