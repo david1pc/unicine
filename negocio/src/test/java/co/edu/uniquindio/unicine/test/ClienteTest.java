@@ -76,7 +76,7 @@ public class ClienteTest {
     @Test
     @Sql("classpath:dataset.sql")
     public void comprobarAutenticacion(){
-        Optional<Cliente> buscado = Optional.ofNullable(clienteRepo.comprobarAutenticacion("juan@email.com", "51321354"));
+        Optional<Cliente> buscado = clienteRepo.comprobarAutenticacion("juan@email.com", "51321354");
         Assertions.assertNotNull(buscado.orElse(null));
     }
 

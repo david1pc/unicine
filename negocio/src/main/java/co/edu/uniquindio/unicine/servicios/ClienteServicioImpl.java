@@ -1,11 +1,9 @@
 package co.edu.uniquindio.unicine.servicios;
 
-import co.edu.uniquindio.unicine.entidades.Cliente;
-import co.edu.uniquindio.unicine.entidades.Compra;
-import co.edu.uniquindio.unicine.entidades.Cupon;
-import co.edu.uniquindio.unicine.repo.ClienteRepo;
-import co.edu.uniquindio.unicine.repo.CompraRepo;
-import co.edu.uniquindio.unicine.repo.CuponRepo;
+import co.edu.uniquindio.unicine.entidades.*;
+import co.edu.uniquindio.unicine.repo.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -14,15 +12,22 @@ import java.util.Optional;
 
 @Service
 public class ClienteServicioImpl implements ClienteServicio {
+    protected final Log logger = LogFactory.getLog(this.getClass());
     private ClienteRepo clienteRepo;
+
+    private AdministradorRepo adminRepo;
+
+    private AdministradorTeatroRepo adminTeatroRepo;
     private CompraRepo compraRepo;
 
     private CuponRepo cuponRepo;
 
-    public ClienteServicioImpl(ClienteRepo clienteRepo, CompraRepo compraRepo, CuponRepo cuponRepo){
+    public ClienteServicioImpl(ClienteRepo clienteRepo, CompraRepo compraRepo, CuponRepo cuponRepo, AdministradorTeatroRepo adminTeatroRepo, AdministradorRepo adminRepo){
         this.clienteRepo = clienteRepo;
         this.compraRepo = compraRepo;
         this.cuponRepo = cuponRepo;
+        this.adminTeatroRepo = adminTeatroRepo;
+        this.adminRepo = adminRepo;
     }
 
     @Override
@@ -38,13 +43,56 @@ public class ClienteServicioImpl implements ClienteServicio {
 
     @Override
     public Cliente login(String correo, String password) throws Exception{
-        Cliente cliente = clienteRepo.comprobarAutenticacion(correo, password);
+        Cliente cliente = clienteRepo.comprobarAutenticacion(correo, password).orElse(null);
 
         if(cliente == null){
             throw new Exception("El correo o la contraseña son incorrectas");
         }
 
         return cliente;
+    }
+
+    @Override
+    public Auth login2(String correo, String password) throws Exception{
+        Cliente cliente = null;
+        Administrador administrador = null;
+        AdministradorTeatro administradorTeatro = null;
+        logger.info("Realizando login...");
+
+        cliente = clienteRepo.comprobarAutenticacion(correo, password).orElse(null);
+
+        if(cliente == null){
+            administrador = adminRepo.comprobarAutenticacion(correo, password).orElse(null);
+        }
+
+        if(cliente == null && administrador == null){
+            administradorTeatro = adminTeatroRepo.comprobarAutenticacion(correo, password).orElse(null);
+        }
+
+        Auth auth = asignarAuth(cliente, administrador, administradorTeatro);
+
+        return auth;
+    }
+
+    @Override
+    public Auth asignarAuth(Cliente cliente, Administrador administrador, AdministradorTeatro administradorTeatro) throws Exception {
+        Auth auth = new Auth();
+        if(cliente != null && cliente.getEstado() == true){
+            auth.setCodigo(cliente.getCodigo());
+            auth.setCorreo(cliente.getCorreo());
+            auth.setRol(Rol.CLIENTE);
+        }else if(administrador != null){
+            auth.setCodigo(administrador.getCodigo());
+            auth.setCorreo(administrador.getCorreo());
+            auth.setRol(Rol.ADMINISTRADOR);
+        }else if(administradorTeatro != null){
+            auth.setCodigo(administradorTeatro.getCodigo());
+            auth.setCorreo(administradorTeatro.getCorreo());
+            auth.setRol(Rol.ADMINISTRADOR_TEATRO);
+        }else{
+            throw new Exception("El correo o la contraseña son incorrectas");
+        }
+        return auth;
     }
 
     @Override

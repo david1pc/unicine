@@ -54,9 +54,8 @@ public class AdminServicioImpl implements AdminServicio  {
 
     @Override
     public Pelicula crearPelicula(Pelicula pelicula) throws Exception {
-        boolean peliculaExiste = peliculaExiste(pelicula.getCodigo());
-        if (peliculaExiste){
-            throw new Exception("La película ya existe");
+        if (pelicula == null){
+            throw new Exception("La pelicula no tiene datos");
         }
         return peliculaRepo.save(pelicula);
 

@@ -1,5 +1,7 @@
 package co.edu.uniquindio.unicine.repo;
 
+import co.edu.uniquindio.unicine.entidades.Administrador;
+import co.edu.uniquindio.unicine.entidades.AdministradorTeatro;
 import co.edu.uniquindio.unicine.entidades.Cliente;
 import co.edu.uniquindio.unicine.entidades.Compra;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +19,7 @@ public interface ClienteRepo extends JpaRepository<Cliente,Integer> {
     Optional<Cliente> findByCedula(String cedula);
     Cliente findByCorreoAndPassword(String email, String clave);
     @Query("select c from Cliente c where c.correo = :correo and c.password = :password")
-    Cliente comprobarAutenticacion(String correo, String password);
+    Optional<Cliente> comprobarAutenticacion(String correo, String password);
 
     @Query("select c from Cliente c where c.estado = :estado")
     List<Cliente> obtenerPorEstado(Boolean estado, Pageable paginator);

@@ -1,5 +1,6 @@
 package co.edu.uniquindio.unicine.entidades;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -20,7 +21,9 @@ public class CompraCombo implements Serializable {
     private Integer cantidad;
     private Double precio;
     @ManyToOne
+    @JsonIgnore
     private Compra compra;
     @ManyToOne
+    @JsonIgnore
     private Combo combo;
 }

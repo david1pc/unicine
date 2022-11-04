@@ -1,7 +1,12 @@
 package co.edu.uniquindio.unicine.controladores;
 
-import co.edu.uniquindio.unicine.entidades.Cliente;
+import co.edu.uniquindio.unicine.entidades.*;
+import co.edu.uniquindio.unicine.repo.AdministradorRepo;
+import co.edu.uniquindio.unicine.servicios.AdminServicio;
+import co.edu.uniquindio.unicine.servicios.AdminTeatroServicio;
 import co.edu.uniquindio.unicine.servicios.ClienteServicio;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,18 +17,36 @@ import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @CrossOrigin(origins = {"http://localhost:4200"})
 @RestController
 @RequestMapping("/clientes")
 public class ClienteController {
+
+    protected final Log logger = LogFactory.getLog(this.getClass());
+
     @Autowired
     private ClienteServicio clienteServicio;
 
+    @Autowired
+    private AdministradorRepo adminRepo;
+
+    @Autowired
+    private AdminServicio adminServicio;
+
+    @Autowired
+    private AdminTeatroServicio adminTeatroServicio;
+
     @GetMapping("/")
-    public List<Cliente> index(){
-        return this.clienteServicio.listarClientes();
+    public ResponseEntity<?> index(){
+        Map<String, Object> response = new HashMap<>();
+        List<Cliente> clientes = this.clienteServicio.listarClientes();
+
+        response.put("clientes", clientes);
+
+        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
@@ -44,6 +67,8 @@ public class ClienteController {
         }
 
         response.put("cliente", cliente);
+
+        System.out.println(cliente);
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
@@ -126,6 +151,78 @@ public class ClienteController {
         }
 
         response.put("mensaje", "El cliente ha sido eliminado con éxito!");
+
+        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/compras/{id}")
+    public ResponseEntity<?> verCompras(@PathVariable Long id){
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            List<Compra> compras = this.clienteServicio.listarHistorialCompras(id.intValue());
+            response.put("compras", compras);
+        } catch (Exception e) {
+            response.put("mensaje", "Error al buscar el historial de compras");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/login/")
+    @ResponseStatus(code = HttpStatus.OK)
+    public ResponseEntity<?> login(@RequestBody Login login){
+        Map<String, Object> response = new HashMap<>();
+        try {
+            Auth auth = this.clienteServicio.login2(login.getCorreo(), login.getPassword());
+            this.logger.info("Enviando auth: " + auth.getCorreo() + " " + auth.getCodigo() + " " + auth.getRol());
+            response.put("auth", auth);
+        } catch (Exception e) {
+            response.put("mensaje", "Error al buscar el usuario");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/verificar-usuario/")
+    @ResponseStatus(code = HttpStatus.OK)
+    public ResponseEntity<?> verificarUsuario(@RequestBody Auth auth){
+        Map<String, Object> response = new HashMap<>();
+        Auth autha = new Auth();
+        Cliente cliente = null;
+        AdministradorTeatro administradorTeatro = null;
+        Optional<Administrador>  administrador = null;
+        try {
+            this.logger.info("Realizando verificacion de usuario " + auth.getRol());
+
+            if(auth.getRol().equals(Rol.CLIENTE)){
+                cliente = this.clienteServicio.obtenerCliente(auth.getCodigo());
+                auth.setCorreo(cliente.getCorreo());
+                auth.setCodigo(cliente.getCodigo());
+                auth.setRol(Rol.CLIENTE);
+            }else if(auth.getRol().equals(Rol.ADMINISTRADOR)){
+                administrador = this.adminRepo.findById(auth.getCodigo());
+                auth.setCorreo(administrador.get().getCorreo());
+                auth.setCodigo(administrador.get().getCodigo());
+                auth.setRol(Rol.ADMINISTRADOR);
+            }else if(auth.getRol().equals(Rol.ADMINISTRADOR_TEATRO)){
+                administradorTeatro = this.adminServicio.obtenerAdministradorTeatro(auth.getCodigo());
+                auth.setCorreo(administradorTeatro.getCorreo());
+                auth.setCodigo(administradorTeatro.getCodigo());
+                auth.setRol(Rol.ADMINISTRADOR_TEATRO);
+            }
+
+            this.logger.info("Enviando auth verificado: " + auth.getCorreo() + " " + auth.getCodigo() + " " + auth.getRol());
+            response.put("auth", auth);
+        } catch (Exception e) {
+            response.put("mensaje", "Error al buscar el usuario");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }

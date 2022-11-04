@@ -1,9 +1,11 @@
 package co.edu.uniquindio.unicine.entidades;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Getter
 @Setter
@@ -18,8 +20,10 @@ public class CuponCliente implements Serializable {
     private Integer codigo;
     private Boolean estado;
     @ManyToOne
+    @JsonIgnore
     private Cupon cupon;
     @ManyToOne
+    @JsonIgnore
     private Cliente cliente;
 
 }

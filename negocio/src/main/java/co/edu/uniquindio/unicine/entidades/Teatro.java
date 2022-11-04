@@ -1,5 +1,6 @@
 package co.edu.uniquindio.unicine.entidades;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -20,8 +21,10 @@ public class Teatro implements Serializable {
     private String direccion;
     private String telefono;
     @ManyToOne
+    @JsonIgnore
     private AdministradorTeatro administradorTeatro;
     @ManyToOne
+    @JsonIgnore
     private Ciudad ciudad;
     @ToString.Exclude
     @OneToMany(mappedBy = "teatro")

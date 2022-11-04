@@ -7,6 +7,7 @@ import co.edu.uniquindio.unicine.entidades.Teatro;
 import java.util.List;
 
 public interface AdminTeatroServicio {
+
     Horario crearHorario(Horario horario)throws Exception;
     Horario actualizarHorario (Horario horario)throws Exception;
     void eliminarHorario (Integer codigo)throws Exception;

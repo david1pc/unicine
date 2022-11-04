@@ -1,5 +1,6 @@
 package co.edu.uniquindio.unicine.entidades;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import net.bytebuddy.asm.Advice;
 
@@ -26,6 +27,7 @@ public class Compra implements Serializable {
     private LocalDate fecha_compra;
     private Double valor_total;
     @ManyToOne
+    @JsonIgnore
     private Funcion funcion;
 
     @ToString.Exclude
@@ -41,8 +43,10 @@ public class Compra implements Serializable {
     private List<CompraCombo>compraCombos;
 
     @OneToOne
+    @JsonIgnore
     private CuponCliente cuponCliente;
     @ManyToOne
+    @JsonIgnore
     private Cliente cliente;
 
     public Compra(MedioPago medioPago, LocalDate fecha_compra, Double valor_total, Funcion funcion, CuponCliente cuponCliente, Cliente cliente) {

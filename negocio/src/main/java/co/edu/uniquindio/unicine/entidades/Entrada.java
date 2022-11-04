@@ -1,5 +1,6 @@
 package co.edu.uniquindio.unicine.entidades;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -20,5 +21,6 @@ public class Entrada  implements Serializable {
     private Character fila;
     private Integer columna;
     @ManyToOne
+    @JsonIgnore
     private Compra compra;
 }
