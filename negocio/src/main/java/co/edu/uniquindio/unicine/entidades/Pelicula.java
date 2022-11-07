@@ -1,5 +1,6 @@
 package co.edu.uniquindio.unicine.entidades;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -21,7 +22,6 @@ public class Pelicula implements Serializable {
     private String nombre;
     private String sinopsis;
     private String url_trailer;
-    private String url_img;
     @Enumerated(EnumType.STRING)
     private Genero genero;
     private Boolean estado;
@@ -30,14 +30,17 @@ public class Pelicula implements Serializable {
     @OneToMany(mappedBy = "pelicula")
     private List<Funcion>funciones;
 
+    @OneToOne
+    private Imagen imagen;
+
     @Builder
-    public Pelicula(Integer codigo, String nombre, String sinopsis, String url_img, Genero genero, Boolean estado, String reparto) {
+    public Pelicula(Integer codigo, String nombre, String sinopsis, Genero genero, Boolean estado, String reparto, Imagen imagen) {
         this.codigo = codigo;
         this.nombre = nombre;
         this.sinopsis = sinopsis;
-        this.url_img = url_img;
         this.genero = genero;
         this.estado = estado;
         this.reparto = reparto;
+        this.imagen = imagen;
     }
 }

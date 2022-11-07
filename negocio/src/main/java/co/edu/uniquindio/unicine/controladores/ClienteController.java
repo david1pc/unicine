@@ -2,18 +2,23 @@ package co.edu.uniquindio.unicine.controladores;
 
 import co.edu.uniquindio.unicine.entidades.*;
 import co.edu.uniquindio.unicine.repo.AdministradorRepo;
-import co.edu.uniquindio.unicine.servicios.AdminServicio;
-import co.edu.uniquindio.unicine.servicios.AdminTeatroServicio;
-import co.edu.uniquindio.unicine.servicios.ClienteServicio;
+import co.edu.uniquindio.unicine.repo.ImagenRepo;
+import co.edu.uniquindio.unicine.servicios.*;
+import co.edu.uniquindio.unicine.util.Encriptacion;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Size;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +43,15 @@ public class ClienteController {
 
     @Autowired
     private AdminTeatroServicio adminTeatroServicio;
+
+    @Autowired
+    private CloudinaryServicio cloudinaryServicio;
+
+    @Autowired
+    private ImagenRepo imagenRepo;
+
+    @Autowired
+    private EmailServicio emailServicio;
 
     @GetMapping("/")
     public ResponseEntity<?> index(){
@@ -73,7 +87,39 @@ public class ClienteController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
-    @PostMapping("/")
+    @PostMapping(value = "/registro/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public ResponseEntity<?> crearCliente(@RequestParam(name = "imagen") @Size(min = 1) MultipartFile imagen, @RequestPart(name = "cliente") String cliente){
+        Map<String, Object> response = new HashMap<>();
+        Cliente cliente_nuevo = null;
+
+        try {
+            cliente_nuevo = new ObjectMapper().readValue(cliente, Cliente.class);
+        } catch (JsonProcessingException e) {
+            response.put("mensaje", "Error al registrar el cliente");
+            response.put("error", "No se reconocen los datos del cliente");
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_ACCEPTABLE);
+        }
+
+        try {
+            Map<String, String> respuesta = cloudinaryServicio.subirImagen(imagen, "clientes");
+            Imagen nueva_imagen = new Imagen((String)respuesta.get("original_filename"), (String)respuesta.get("url"), (String)respuesta.get("public_id"));
+            Imagen img = this.imagenRepo.save(nueva_imagen);
+            cliente_nuevo.setImagen(img);
+            Cliente nuevo = this.clienteServicio.registrarCliente(cliente_nuevo);
+            //this.emailServicio.enviarEmail("");
+            response.put("cliente", nuevo);
+            response.put("mensaje", "El cliente " + nuevo.getPrimerNombre() + ", ha sido registrado con exito!. Se le ha enviado a su correo un enlace para activar la cuenta");
+        } catch (Exception e) {
+            response.put("mensaje", "Error al intentar registrarse");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/registro-data/")
     @ResponseStatus(code = HttpStatus.CREATED)
     public ResponseEntity<?> registrarCliente(@Valid @RequestBody Cliente cliente, BindingResult result) {
         Cliente clienteNuevo = null;

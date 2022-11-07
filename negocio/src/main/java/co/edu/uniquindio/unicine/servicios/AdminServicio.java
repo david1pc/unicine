@@ -8,6 +8,7 @@ public interface AdminServicio {
 
     // Gestionar ciudades
     Ciudad crearCiudad(Ciudad ciudad) throws Exception;
+
     Ciudad obtenerCiudad(Integer codigo) throws Exception;
 
     // Gestionar Películas

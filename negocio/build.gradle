@@ -1,6 +1,10 @@
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web:2.7.5'
+    implementation 'org.springframework.boot:spring-boot-starter-mail:2.7.5'
+    implementation 'com.google.zxing:core:3.5.1'
+    implementation 'com.google.zxing:javase:3.5.1'
+    implementation 'com.cloudinary:cloudinary-http44:1.33.0'
     runtimeOnly 'mysql:mysql-connector-java'
 }
 test {

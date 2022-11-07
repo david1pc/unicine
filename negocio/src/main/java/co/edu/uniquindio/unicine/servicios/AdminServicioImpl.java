@@ -82,7 +82,11 @@ public class AdminServicioImpl implements AdminServicio  {
             throw new Exception("La pelicula no existe");
         }
 
-        peliculaRepo.delete(pelicula.get());
+        try{
+            peliculaRepo.delete(pelicula.get());
+        }catch(Exception e){
+            throw new Exception("La pelicula con id: " + codigo + ", no puede eliminarse. Se encuentra relacionada con otra entidad");
+        }
 
     }
 
@@ -103,9 +107,8 @@ public class AdminServicioImpl implements AdminServicio  {
     // Gestionar cupones
     @Override
     public Cupon crearCupon(Cupon cupon) throws Exception {
-        boolean cuponExiste = cuponExiste(cupon.getCodigo());
-        if (cuponExiste){
-            throw new Exception("El cupón ya existe");
+        if (cupon == null){
+            throw new Exception("El cupon no tiene datos");
         }
         return cuponRepo.save(cupon);
     }
@@ -131,7 +134,11 @@ public class AdminServicioImpl implements AdminServicio  {
             throw new Exception("El cupón no existe");
         }
 
-        cuponRepo.delete(cupon.get());
+        try{
+            cuponRepo.delete(cupon.get());
+        }catch(Exception e) {
+            throw new Exception("El cupon con id: " + codigo + ", no puede eliminarse. Se encuentra relacionada con uno o más cupones de clientes");
+        }
     }
 
     @Override
@@ -231,7 +238,11 @@ public class AdminServicioImpl implements AdminServicio  {
             throw new Exception("El combo no existe");
         }
 
-        comboRepo.delete(combo.get());
+        try{
+            comboRepo.delete(combo.get());
+        }catch(Exception e) {
+            throw new Exception("El combo con id: " + codigo + ", no puede eliminarse. Se encuentra relacionada con una o más compras");
+        }
     }
 
     @Override

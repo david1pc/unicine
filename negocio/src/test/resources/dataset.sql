@@ -1,8 +1,8 @@
-insert into cliente(codigo, cedula, correo, estado, imagen_perfil, primer_nombre, primer_apellido, password) values (1, "1852151","juan@email.com",0,"img","juan","manuel","51321354");
-insert into cliente(codigo, cedula, correo, estado, imagen_perfil, primer_nombre, primer_apellido, password)values (2, "1051211","manuel@email.com",1,"img","manuel","pedro","65151321");
-insert into cliente(codigo, cedula, correo, estado, imagen_perfil, primer_nombre, primer_apellido, password) values (3, "2151541","pedro@email.com",0,"img","pedro","pablo","78978988");
-insert into cliente(codigo, cedula, correo, estado, imagen_perfil, primer_nombre, primer_apellido, password) values (4, "1224544","pablo@email.com",1,"img","pablo","garcia","5321222");
-insert into cliente(codigo, cedula, correo, estado, imagen_perfil, primer_nombre, primer_apellido, password) values (5, "9522222","emilio@email.com",0,"img","emilio","jimenez","1111000");
+insert into cliente(codigo, cedula, correo, estado, primer_nombre, primer_apellido, password) values (1, "1852151","juan@email.com",0,"juan","manuel","51321354");
+insert into cliente(codigo, cedula, correo, estado, primer_nombre, primer_apellido, password)values (2, "1051211","manuel@email.com",1,"manuel","pedro","65151321");
+insert into cliente(codigo, cedula, correo, estado, primer_nombre, primer_apellido, password) values (3, "2151541","pedro@email.com",0,"pedro","pablo","78978988");
+insert into cliente(codigo, cedula, correo, estado, primer_nombre, primer_apellido, password) values (4, "1224544","pablo@email.com",1,"pablo","garcia","5321222");
+insert into cliente(codigo, cedula, correo, estado, primer_nombre, primer_apellido, password) values (5, "9522222","emilio@email.com",0,"emilio","jimenez","1111000");
 
 insert into cliente_telefonos values (1,"651651111");
 insert into cliente_telefonos values (2,"7874152");
@@ -22,11 +22,18 @@ insert into administrador_teatro(codigo, correo, password, primer_nombre, primer
 insert into administrador_teatro(codigo, correo, password, primer_nombre, primer_apellido) values (4, "admin9@email.com","5ads","Hernan","Restrepo");
 insert into administrador_teatro(codigo, correo, password, primer_nombre, primer_apellido) values (5, "admin10@email.com","1ads","Pablo","Restrepo");
 
-insert into pelicula(codigo, estado, genero, nombre, reparto, sinopsis, url_img, url_trailer) values(1, 1,"TERROR","El Conjuro","actores","sinopsis","img","trailer");
-insert into pelicula(codigo, estado, genero, nombre, reparto, sinopsis, url_img, url_trailer) values(2, 1,"ACCION", "El resplandor","actores","sinopsis","img","trailer");
-insert into pelicula(codigo, estado, genero, nombre, reparto, sinopsis, url_img, url_trailer) values(3, 1,"CIENCIA_FICCION","Tenet","actores","sinopsis","img","trailer");
-insert into pelicula(codigo, estado, genero, nombre, reparto, sinopsis, url_img, url_trailer) values(4, 1,"CIENCIA_FICCION","Spiderman 3","actores","sinopsis","img","trailer");
-insert into pelicula(codigo, estado, genero, nombre, reparto, sinopsis, url_img, url_trailer) values(5, 1,"CIENCIA_FICCION","Batman: El caballero de la noche","actores","sinopsis","img","trailer");
+insert into imagen(codigo, nombre, imagen_url, imagen_id) values(1, "hola","hola.jpg","41122533894");
+insert into imagen(codigo, nombre, imagen_url, imagen_id) values(2, "juan","juan.jpg","5125894");
+insert into imagen(codigo, nombre, imagen_url, imagen_id) values(3, "roger","roger.jpg","5182725894");
+insert into imagen(codigo, nombre, imagen_url, imagen_id) values(4, "onepiece","onepiece.jpg","671894");
+insert into imagen(codigo, nombre, imagen_url, imagen_id) values(5, "jdw","jdw.jpg","253452");
+
+
+insert into pelicula(codigo, estado, genero, nombre, reparto, sinopsis, imagen_codigo, url_trailer) values(1, 1,"TERROR","El Conjuro","actores","sinopsis",1,"trailer");
+insert into pelicula(codigo, estado, genero, nombre, reparto, sinopsis, imagen_codigo, url_trailer) values(2, 1,"ACCION", "El resplandor","actores","sinopsis",2,"trailer");
+insert into pelicula(codigo, estado, genero, nombre, reparto, sinopsis, imagen_codigo, url_trailer) values(3, 1,"CIENCIA_FICCION","Tenet","actores","sinopsis",3,"trailer");
+insert into pelicula(codigo, estado, genero, nombre, reparto, sinopsis, imagen_codigo, url_trailer) values(4, 1,"CIENCIA_FICCION","Spiderman 3","actores","sinopsis",4,"trailer");
+insert into pelicula(codigo, estado, genero, nombre, reparto, sinopsis, imagen_codigo, url_trailer) values(5, 1,"CIENCIA_FICCION","Batman: El caballero de la noche","actores","sinopsis",5,"trailer");
 
 insert into ciudad(codigo, nombre) values (1, "Armenia");
 insert into ciudad(codigo, nombre) values (2, "Cali");

@@ -1,6 +1,7 @@
 package co.edu.uniquindio.unicine.test;
 
 import co.edu.uniquindio.unicine.entidades.*;
+import co.edu.uniquindio.unicine.repo.ImagenRepo;
 import co.edu.uniquindio.unicine.servicios.AdminServicio;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,9 @@ public class AdminServicioTest {
 
     @Autowired
     private AdminServicio adminServicio;
+
+    @Autowired
+    private ImagenRepo imagenRepo;
 
     // ciudades
     @Test
@@ -46,8 +50,9 @@ public class AdminServicioTest {
     @Test
     @Sql("classpath:dataset.sql")
     public void crearPeliculaTest(){
+        Imagen imagen = (Imagen) this.imagenRepo.findById(1).orElse(null);
         Pelicula pelicula = Pelicula.builder().codigo(10).nombre("Fragmentado").sinopsis("Kevin, un hombre con 23 personalidades, secuestra a 3 chicas jóvenes " +
-                "y las mantiene retenidas en un sótano").url_img("aquinoesta.jpg").genero(Genero.TERROR).estado(true).reparto("James MCavoy").build();
+                "y las mantiene retenidas en un sótano").imagen(imagen).genero(Genero.TERROR).estado(true).reparto("James MCavoy").build();
         try {
             Pelicula peliculaNueva = adminServicio.crearPelicula(pelicula);
             System.out.println(peliculaNueva);
@@ -56,7 +61,6 @@ public class AdminServicioTest {
             throw new RuntimeException(e);
         }
     }
-
     @Test
     @Sql("classpath:dataset.sql")
     public void actualizarPeliculaTest(){

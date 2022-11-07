@@ -22,7 +22,10 @@ public class Cliente extends Persona implements Serializable {
     private Boolean estado;
     @ElementCollection
     private List<String> telefonos;
-    private String imagen_perfil;
+
+    @OneToOne
+    private Imagen imagen;
+
     @ToString.Exclude
     @OneToMany(mappedBy = "cliente")
     private List<Compra>compras;
@@ -31,21 +34,21 @@ public class Cliente extends Persona implements Serializable {
     private List<CuponCliente>cuponClientes;
 
     public Cliente(String primerNombre, String segundoNombre, String primerApellido, String segundoApellido, String correo,
-                   String password, String cedula, Boolean estado, String imagen_perfil, List<String> telefonos){
+                   String password, String cedula, Boolean estado, Imagen imagen, List<String> telefonos){
         super(primerNombre, segundoNombre, primerApellido, segundoApellido, correo, password);
         this.cedula = cedula;
-        this.imagen_perfil = imagen_perfil;
+        this.imagen = imagen;
         this.estado = estado;
         this.telefonos = telefonos;
     }
 
     @Builder
     public Cliente(Integer codigo, String primerNombre, String primerApellido, String correo,
-                   String password, String cedula, Boolean estado, String imagen_perfil, List<String> telefonos){
+                   String password, String cedula, Boolean estado, Imagen imagen, List<String> telefonos){
         super(primerNombre, primerApellido, correo, password);
         this.codigo = codigo;
         this.cedula = cedula;
-        this.imagen_perfil = imagen_perfil;
+        this.imagen = imagen;
         this.estado = estado;
         this.telefonos = telefonos;
     }

@@ -36,7 +36,7 @@ public abstract class Persona implements Serializable {
     private String correo;
 
     @ToString.Exclude
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 1000)
     private String password;
 
     public Persona(String primerNombre, String primerApellido, String correo, String password) {
