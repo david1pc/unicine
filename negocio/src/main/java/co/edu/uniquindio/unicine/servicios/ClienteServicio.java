@@ -16,6 +16,4 @@ public interface ClienteServicio {
     List<Compra> listarHistorialCompras(Integer codigoCliente) throws Exception;
     Compra registrarCompra(Compra compra) throws Exception;
     Optional<Cupon> redimirCupon(Integer codigoCupon) throws Exception;
-
-    Auth asignarAuth(Cliente cliente, Administrador administrador, AdministradorTeatro administradorTeatro) throws Exception;
 }

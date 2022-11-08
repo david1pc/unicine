@@ -11,12 +11,12 @@ import java.io.Serializable;
 @Setter
 @ToString
 @NoArgsConstructor
-public class Login implements Serializable {
+public class LoginRespuesta implements Serializable {
+    private String jwttoken;
     private String username;
-    private String password;
 
-    public Login(String username, String password){
-        this.username = username;
-        this.password = password;
+    public LoginRespuesta(String name, String jwttoken) {
+        this.username = name;
+        this.jwttoken = jwttoken;
     }
 }

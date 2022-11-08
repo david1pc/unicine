@@ -20,15 +20,20 @@ public class AdministradorTeatro extends Persona implements Serializable {
     @OneToMany(mappedBy = "administradorTeatro")
     private List<Teatro> teatros;
 
+    @OneToOne
+    private Rol rol;
+
     @Builder
     public AdministradorTeatro(Integer codigo, String primerNombre, String segundoNombre, String primerApellido, String segundoApellido, String correo,
-                         String password){
-        super(primerNombre, segundoNombre, primerApellido, segundoApellido, correo, password);
+                         String password, Rol rol, String username){
+        super(primerNombre, segundoNombre, primerApellido, segundoApellido, correo, password, username);
         this.codigo = codigo;
+        this.rol = rol;
     }
 
     public AdministradorTeatro(String primerNombre, String primerApellido, String correo,
-                         String password){
-        super(primerNombre, primerApellido, correo, password);
+                         String password, Rol rol, String username){
+        super(primerNombre, primerApellido, correo, password, username);
+        this.rol = rol;
     }
 }

@@ -35,23 +35,28 @@ public abstract class Persona implements Serializable {
     @Column(nullable = false, unique = true, length = 200)
     private String correo;
 
+    @Column(length = 100)
+    private String username;
+
     @ToString.Exclude
     @Column(nullable = false, length = 1000)
     private String password;
 
-    public Persona(String primerNombre, String primerApellido, String correo, String password) {
+    public Persona(String primerNombre, String primerApellido, String correo, String password, String username) {
         this.primerNombre = primerNombre;
         this.primerApellido = primerApellido;
         this.correo = correo;
         this.password = password;
+        this.username = username;
     }
 
-    public Persona(String primerNombre, String segundoNombre, String primerApellido, String segundoApellido, String correo, String password) {
+    public Persona(String primerNombre, String segundoNombre, String primerApellido, String segundoApellido, String correo, String password, String username) {
         this.primerNombre = primerNombre;
         this.segundoNombre = segundoNombre;
         this.primerApellido = primerApellido;
         this.segundoApellido = segundoApellido;
         this.correo = correo;
         this.password = password;
+        this.username = username;
     }
 }

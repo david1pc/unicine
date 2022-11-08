@@ -4,6 +4,8 @@ import co.edu.uniquindio.unicine.entidades.*;
 import co.edu.uniquindio.unicine.repo.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -21,6 +23,9 @@ public class ClienteServicioImpl implements ClienteServicio {
     private CompraRepo compraRepo;
 
     private CuponRepo cuponRepo;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     public ClienteServicioImpl(ClienteRepo clienteRepo, CompraRepo compraRepo, CuponRepo cuponRepo, AdministradorTeatroRepo adminTeatroRepo, AdministradorRepo adminRepo){
         this.clienteRepo = clienteRepo;
@@ -54,6 +59,7 @@ public class ClienteServicioImpl implements ClienteServicio {
 
     @Override
     public Auth login2(String correo, String password) throws Exception{
+        /*
         Cliente cliente = null;
         Administrador administrador = null;
         AdministradorTeatro administradorTeatro = null;
@@ -70,10 +76,12 @@ public class ClienteServicioImpl implements ClienteServicio {
         }
 
         Auth auth = asignarAuth(cliente, administrador, administradorTeatro);
+        */
 
-        return auth;
+
+        return null;
     }
-
+/*
     @Override
     public Auth asignarAuth(Cliente cliente, Administrador administrador, AdministradorTeatro administradorTeatro) throws Exception {
         Auth auth = new Auth();
@@ -94,7 +102,7 @@ public class ClienteServicioImpl implements ClienteServicio {
         }
         return auth;
     }
-
+*/
     @Override
     public Cliente registrarCliente(Cliente cliente) throws Exception {
         Boolean correoExiste = esCorreoRepetido(cliente.getCorreo());
@@ -103,6 +111,8 @@ public class ClienteServicioImpl implements ClienteServicio {
         if(correoExiste || cedulaExiste){
             throw new Exception("El cliente ya existe");
         }
+
+        cliente.setPassword(passwordEncoder.encode(cliente.getPassword()));
 
         return clienteRepo.save(cliente);
     }

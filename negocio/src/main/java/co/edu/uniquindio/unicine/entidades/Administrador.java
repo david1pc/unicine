@@ -16,14 +16,20 @@ public class Administrador extends Persona implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer codigo;
 
+    @OneToOne
+    private Rol rol;
+
+
     public Administrador(String primerNombre, String segundoNombre, String primerApellido, String segundoApellido, String correo,
-                   String password){
-        super(primerNombre, segundoNombre, primerApellido, segundoApellido, correo, password);
+                   String password, Rol rol, String username){
+        super(primerNombre, segundoNombre, primerApellido, segundoApellido, correo, password, username);
+        this.rol = rol;
     }
 
     @Builder
     public Administrador(String primerNombre, String primerApellido, String correo,
-                   String password){
-        super(primerNombre, primerApellido, correo, password);
+                   String password, Rol rol, String username){
+        super(primerNombre, primerApellido, correo, password, username);
+        this.rol = rol;
     }
 }

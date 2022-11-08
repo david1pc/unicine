@@ -14,6 +14,5 @@ public interface AdministradorTeatroRepo extends JpaRepository<AdministradorTeat
     Optional<AdministradorTeatro> comprobarAutenticacion(String correo, String password);
     AdministradorTeatro findByCorreoAndPassword(String correo, String clave);
 
-
-
+    Optional<AdministradorTeatro> findByUsername(String username);
 }

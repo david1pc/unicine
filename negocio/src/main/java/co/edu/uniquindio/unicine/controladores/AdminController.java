@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@CrossOrigin(origins = {"http://localhost:4200"})
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
@@ -50,6 +50,7 @@ public class AdminController {
     @Autowired
     ImagenRepo imagenRepo;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/peliculas/")
     public ResponseEntity<?> obtenerPeliculas(){
         Map<String, Object> response = new HashMap<>();
@@ -67,6 +68,7 @@ public class AdminController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "/peliculas/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(code = HttpStatus.CREATED)
     public ResponseEntity<?> crearPelicula(@RequestParam(name = "imagen") @Size(min = 1) MultipartFile imagen, @RequestPart(name = "pelicula") String pelicula){
@@ -98,6 +100,7 @@ public class AdminController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/peliculas-data/")
     @ResponseStatus(code = HttpStatus.CREATED)
     public ResponseEntity<?> crearPelicula(@RequestBody Pelicula pelicula){
@@ -116,6 +119,7 @@ public class AdminController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(value = "/peliculas/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(code = HttpStatus.CREATED)
     public ResponseEntity<?> actualizarPelicula(@RequestParam(name = "imagen") @Size(min = 1) MultipartFile imagen, @RequestPart(name = "pelicula") String pelicula){
@@ -152,6 +156,7 @@ public class AdminController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/peliculas-data/")
     @ResponseStatus(code = HttpStatus.CREATED)
     public ResponseEntity<?> actualizarPelicula(@RequestBody Pelicula pelicula){
@@ -172,6 +177,7 @@ public class AdminController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/peliculas/eliminar")
     @ResponseStatus(code = HttpStatus.OK)
     public ResponseEntity<?> eliminarPelicula(@RequestBody Integer peliculas_ids []){
@@ -200,6 +206,7 @@ public class AdminController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/cupones/")
     public ResponseEntity<?> obtenerCupones(){
         Map<String, Object> response = new HashMap<>();
@@ -216,6 +223,7 @@ public class AdminController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/cupones/")
     @ResponseStatus(code = HttpStatus.CREATED)
     public ResponseEntity<?> crearCupones(@RequestBody Cupon cupon){
@@ -236,6 +244,7 @@ public class AdminController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/cupones/")
     @ResponseStatus(code = HttpStatus.CREATED)
     public ResponseEntity<?> actualizarCupon(@RequestBody Cupon cupon){
@@ -256,6 +265,7 @@ public class AdminController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/cupones/eliminar")
     @ResponseStatus(code = HttpStatus.OK)
     public ResponseEntity<?> eliminarCupon(@RequestBody Integer cupones_ids []){

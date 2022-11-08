@@ -1,8 +1,12 @@
-insert into cliente(codigo, cedula, correo, estado, primer_nombre, primer_apellido, password) values (1, "1852151","juan@email.com",0,"juan","manuel","51321354");
-insert into cliente(codigo, cedula, correo, estado, primer_nombre, primer_apellido, password)values (2, "1051211","manuel@email.com",1,"manuel","pedro","65151321");
-insert into cliente(codigo, cedula, correo, estado, primer_nombre, primer_apellido, password) values (3, "2151541","pedro@email.com",0,"pedro","pablo","78978988");
-insert into cliente(codigo, cedula, correo, estado, primer_nombre, primer_apellido, password) values (4, "1224544","pablo@email.com",1,"pablo","garcia","5321222");
-insert into cliente(codigo, cedula, correo, estado, primer_nombre, primer_apellido, password) values (5, "9522222","emilio@email.com",0,"emilio","jimenez","1111000");
+insert into rol(codigo, nombre) values(1, "ROLE_CLIENTE");
+insert into rol(codigo, nombre) values(2, "ROLE_ADMIN");
+insert into rol(codigo, nombre) values(3, "ROLE_ADMIN_TEATRO");
+
+insert into cliente(codigo, cedula, correo, estado, primer_nombre, primer_apellido, password, rol_codigo, username) values (1, "1852151","juan@email.com",0,"juan","manuel","$2a$10$6CDWjRFJbLSPHqh2twL6UO/R8EoyddMTfHqsKweAXVHPm5TGZm2Ku", 1, "juan");
+insert into cliente(codigo, cedula, correo, estado, primer_nombre, primer_apellido, password, rol_codigo, username)values (2, "1051211","manuel@email.com",1,"manuel","pedro","$2a$10$6CDWjRFJbLSPHqh2twL6UO/R8EoyddMTfHqsKweAXVHPm5TGZm2Ku", 1, "manuel");
+insert into cliente(codigo, cedula, correo, estado, primer_nombre, primer_apellido, password, rol_codigo, username) values (3, "2151541","pedro@email.com",0,"pedro","pablo","$2a$10$6CDWjRFJbLSPHqh2twL6UO/R8EoyddMTfHqsKweAXVHPm5TGZm2Ku", 1 , "pedro");
+insert into cliente(codigo, cedula, correo, estado, primer_nombre, primer_apellido, password, rol_codigo, username) values (4, "1224544","pablo@email.com",1,"pablo","garcia","$2a$10$6CDWjRFJbLSPHqh2twL6UO/R8EoyddMTfHqsKweAXVHPm5TGZm2Ku", 1, "pablo");
+insert into cliente(codigo, cedula, correo, estado, primer_nombre, primer_apellido, password, rol_codigo, username) values (5, "9522222","emilio@email.com",0,"emilio","jimenez","$2a$10$6CDWjRFJbLSPHqh2twL6UO/R8EoyddMTfHqsKweAXVHPm5TGZm2Ku", 1, "emilio");
 
 insert into cliente_telefonos values (1,"651651111");
 insert into cliente_telefonos values (2,"7874152");
@@ -10,17 +14,17 @@ insert into cliente_telefonos values (3,"6532181");
 insert into cliente_telefonos values (4,"321645444");
 insert into cliente_telefonos values (5,"321645444");
 
-insert into administrador(codigo, correo, password, primer_nombre, primer_apellido) values (1, "admin1@email.com", "125ads","Manuel","Ramirez");
-insert into administrador(codigo, correo, password, primer_nombre, primer_apellido) values (2, "admin2@email.com","25ads","David","Fernando");
-insert into administrador(codigo, correo, password, primer_nombre, primer_apellido) values (3, "admin3@email.com","2ads","Sebastian","juan");
-insert into administrador(codigo, correo, password, primer_nombre, primer_apellido) values (4, "admin4@email.com","5ads","Laura","Restrepo");
-insert into administrador(codigo, correo, password, primer_nombre, primer_apellido) values (5, "admin5@email.com","1ads","Alison","Restrepo");
+insert into administrador(codigo, correo, password, primer_nombre, primer_apellido, rol_codigo, username) values (1, "admin1@email.com", "$2a$10$6CDWjRFJbLSPHqh2twL6UO/R8EoyddMTfHqsKweAXVHPm5TGZm2Ku","Manuel","Ramirez", 2, "admin1");
+insert into administrador(codigo, correo, password, primer_nombre, primer_apellido, rol_codigo, username) values (2, "admin2@email.com","$2a$10$6CDWjRFJbLSPHqh2twL6UO/R8EoyddMTfHqsKweAXVHPm5TGZm2Ku","David","Fernando", 2, "admin2");
+insert into administrador(codigo, correo, password, primer_nombre, primer_apellido, rol_codigo, username) values (3, "admin3@email.com","$2a$10$6CDWjRFJbLSPHqh2twL6UO/R8EoyddMTfHqsKweAXVHPm5TGZm2Ku","Sebastian","juan", 2, "admin3");
+insert into administrador(codigo, correo, password, primer_nombre, primer_apellido, rol_codigo, username) values (4, "admin4@email.com","$2a$10$6CDWjRFJbLSPHqh2twL6UO/R8EoyddMTfHqsKweAXVHPm5TGZm2Ku","Laura","Restrepo", 2, "admin4");
+insert into administrador(codigo, correo, password, primer_nombre, primer_apellido, rol_codigo, username) values (5, "admin5@email.com","$2a$10$6CDWjRFJbLSPHqh2twL6UO/R8EoyddMTfHqsKweAXVHPm5TGZm2Ku","Alison","Restrepo", 2, "admin5");
 
-insert into administrador_teatro(codigo, correo, password, primer_nombre, primer_apellido) values (1, "admin6@email.com", "125ads","Manuela","Ramirez");
-insert into administrador_teatro(codigo, correo, password, primer_nombre, primer_apellido) values (2, "admin7@email.com","25ads","Kevin","Fernando");
-insert into administrador_teatro(codigo, correo, password, primer_nombre, primer_apellido) values (3, "admin8@email.com","2ads","Laura","juan");
-insert into administrador_teatro(codigo, correo, password, primer_nombre, primer_apellido) values (4, "admin9@email.com","5ads","Hernan","Restrepo");
-insert into administrador_teatro(codigo, correo, password, primer_nombre, primer_apellido) values (5, "admin10@email.com","1ads","Pablo","Restrepo");
+insert into administrador_teatro(codigo, correo, password, primer_nombre, primer_apellido, rol_codigo, username) values (1, "admin6@email.com", "$2a$10$6CDWjRFJbLSPHqh2twL6UO/R8EoyddMTfHqsKweAXVHPm5TGZm2Ku","Manuela","Ramirez", 3, "admin6");
+insert into administrador_teatro(codigo, correo, password, primer_nombre, primer_apellido, rol_codigo, username) values (2, "admin7@email.com","$2a$10$6CDWjRFJbLSPHqh2twL6UO/R8EoyddMTfHqsKweAXVHPm5TGZm2Ku","Kevin","Fernando", 3, "admin7");
+insert into administrador_teatro(codigo, correo, password, primer_nombre, primer_apellido, rol_codigo, username) values (3, "admin8@email.com","$2a$10$6CDWjRFJbLSPHqh2twL6UO/R8EoyddMTfHqsKweAXVHPm5TGZm2Ku","Laura","juan", 3, "admin8");
+insert into administrador_teatro(codigo, correo, password, primer_nombre, primer_apellido, rol_codigo, username) values (4, "admin9@email.com","$2a$10$6CDWjRFJbLSPHqh2twL6UO/R8EoyddMTfHqsKweAXVHPm5TGZm2Ku","Hernan","Restrepo", 3, "admin9");
+insert into administrador_teatro(codigo, correo, password, primer_nombre, primer_apellido, rol_codigo, username) values (5, "admin10@email.com","$2a$10$6CDWjRFJbLSPHqh2twL6UO/R8EoyddMTfHqsKweAXVHPm5TGZm2Ku","Pablo","Restrepo", 3, "admin10");
 
 insert into imagen(codigo, nombre, imagen_url, imagen_id) values(1, "hola","hola.jpg","41122533894");
 insert into imagen(codigo, nombre, imagen_url, imagen_id) values(2, "juan","juan.jpg","5125894");

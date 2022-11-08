@@ -2,30 +2,37 @@ package co.edu.uniquindio.unicine.controladores;
 
 import co.edu.uniquindio.unicine.entidades.*;
 import co.edu.uniquindio.unicine.repo.AdministradorRepo;
+import co.edu.uniquindio.unicine.repo.ClienteRepo;
 import co.edu.uniquindio.unicine.repo.ImagenRepo;
 import co.edu.uniquindio.unicine.servicios.*;
-import co.edu.uniquindio.unicine.util.Encriptacion;
+import co.edu.uniquindio.unicine.util.EncriptacionUtil;
+import co.edu.uniquindio.unicine.util.JwtTokenUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
-@CrossOrigin(origins = {"http://localhost:4200"})
 @RestController
 @RequestMapping("/clientes")
 public class ClienteController {
@@ -36,15 +43,6 @@ public class ClienteController {
     private ClienteServicio clienteServicio;
 
     @Autowired
-    private AdministradorRepo adminRepo;
-
-    @Autowired
-    private AdminServicio adminServicio;
-
-    @Autowired
-    private AdminTeatroServicio adminTeatroServicio;
-
-    @Autowired
     private CloudinaryServicio cloudinaryServicio;
 
     @Autowired
@@ -52,6 +50,24 @@ public class ClienteController {
 
     @Autowired
     private EmailServicio emailServicio;
+
+    @Autowired
+    AuthenticationManager authenticationManager;
+
+    @Autowired
+    JwtUserDetailsServicio jwtUserDetailsServicio;
+
+    @Autowired
+    JwtTokenUtil jwtTokenUtil;
+
+    @Autowired
+    AdminServicio adminServicio;
+
+    @Autowired
+    ClienteRepo clienteRepo;
+
+    @Value("${dev.route}")
+    String devRoute;
 
     @GetMapping("/")
     public ResponseEntity<?> index(){
@@ -107,7 +123,9 @@ public class ClienteController {
             Imagen img = this.imagenRepo.save(nueva_imagen);
             cliente_nuevo.setImagen(img);
             Cliente nuevo = this.clienteServicio.registrarCliente(cliente_nuevo);
-            //this.emailServicio.enviarEmail("");
+            String username_enc = EncriptacionUtil.encrypt(nuevo.getUsername());
+            String route = this.devRoute.concat("auth/activacion/"+username_enc);
+            this.emailServicio.enviarEmail("Registro de cuenta en Unicine", route, nuevo.getCorreo());
             response.put("cliente", nuevo);
             response.put("mensaje", "El cliente " + nuevo.getPrimerNombre() + ", ha sido registrado con exito!. Se le ha enviado a su correo un enlace para activar la cuenta");
         } catch (Exception e) {
@@ -138,6 +156,11 @@ public class ClienteController {
 
         try {
             clienteNuevo = this.clienteServicio.registrarCliente(cliente);
+            String username_enc = EncriptacionUtil.encrypt(clienteNuevo.getUsername());
+            String route = this.devRoute.concat("auth/activacion/"+username_enc);
+            this.emailServicio.enviarEmail("Registro de cuenta en Unicine", route, clienteNuevo.getCorreo());
+            response.put("cliente", clienteNuevo);
+            response.put("mensaje", "El cliente " + clienteNuevo.getPrimerNombre() + ", ha sido registrado con exito!. Se le ha enviado a su correo un enlace para activar la cuenta");
         }catch(Exception e) {
             response.put("mensaje", "Error al realizar el insert a la base de datos");
             response.put("error", e.getMessage());
@@ -201,6 +224,7 @@ public class ClienteController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('CLIENTE')")
     @GetMapping("/compras/{id}")
     public ResponseEntity<?> verCompras(@PathVariable Long id){
         Map<String, Object> response = new HashMap<>();
@@ -217,55 +241,68 @@ public class ClienteController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
+    @GetMapping("/peliculas/")
+    public ResponseEntity<?> obtenerPeliculas(){
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            List<Pelicula> peliculas = this.adminServicio.listarPeliculas();
+            logger.info("Enviando peliculas: " + peliculas);
+            response.put("peliculas", peliculas);
+        } catch (Exception e) {
+            response.put("mensaje", "Error al buscar las peliculas");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/activacion-cuenta/{str}")
+    public ResponseEntity<?> activarCuenta(@PathVariable String str){
+        Map<String, Object> response = new HashMap<>();
+        try{
+            String username = EncriptacionUtil.decrypt(str);
+            Optional<Cliente> cliente = this.clienteRepo.findByUsername(username);
+            cliente.get().setEstado(true);
+            this.clienteServicio.actualizarCliente(cliente.get());
+            response.put("mensaje", "Su cuenta ha sido activada con exito");
+            response.put("estado", cliente.get().getEstado());
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+        }catch(Exception e){
+            response.put("mensaje", "Error en la activacion de la cuenta");
+            response.put("error", "No se ha encontrado el cliente");
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
+    }
+
+
     @PostMapping("/login/")
     @ResponseStatus(code = HttpStatus.OK)
     public ResponseEntity<?> login(@RequestBody Login login){
         Map<String, Object> response = new HashMap<>();
+
         try {
-            Auth auth = this.clienteServicio.login2(login.getCorreo(), login.getPassword());
-            this.logger.info("Enviando auth: " + auth.getCorreo() + " " + auth.getCodigo() + " " + auth.getRol());
-            response.put("auth", auth);
-        } catch (Exception e) {
-            response.put("mensaje", "Error al buscar el usuario");
-            response.put("error", e.getMessage());
-            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
-        }
-
-        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
-    }
-
-    @PostMapping("/verificar-usuario/")
-    @ResponseStatus(code = HttpStatus.OK)
-    public ResponseEntity<?> verificarUsuario(@RequestBody Auth auth){
-        Map<String, Object> response = new HashMap<>();
-        Auth autha = new Auth();
-        Cliente cliente = null;
-        AdministradorTeatro administradorTeatro = null;
-        Optional<Administrador>  administrador = null;
-        try {
-            this.logger.info("Realizando verificacion de usuario " + auth.getRol());
-
-            if(auth.getRol().equals(Rol.CLIENTE)){
-                cliente = this.clienteServicio.obtenerCliente(auth.getCodigo());
-                auth.setCorreo(cliente.getCorreo());
-                auth.setCodigo(cliente.getCodigo());
-                auth.setRol(Rol.CLIENTE);
-            }else if(auth.getRol().equals(Rol.ADMINISTRADOR)){
-                administrador = this.adminRepo.findById(auth.getCodigo());
-                auth.setCorreo(administrador.get().getCorreo());
-                auth.setCodigo(administrador.get().getCodigo());
-                auth.setRol(Rol.ADMINISTRADOR);
-            }else if(auth.getRol().equals(Rol.ADMINISTRADOR_TEATRO)){
-                administradorTeatro = this.adminServicio.obtenerAdministradorTeatro(auth.getCodigo());
-                auth.setCorreo(administradorTeatro.getCorreo());
-                auth.setCodigo(administradorTeatro.getCodigo());
-                auth.setRol(Rol.ADMINISTRADOR_TEATRO);
+            autenticarUsuario(login.getUsername(), login.getPassword());
+            final UserDetails userDetails = jwtUserDetailsServicio.loadUserByUsername(login.getUsername());
+            String rol_user = "";
+            for(GrantedAuthority e: userDetails.getAuthorities()){
+                rol_user = e.getAuthority();
             }
-
-            this.logger.info("Enviando auth verificado: " + auth.getCorreo() + " " + auth.getCodigo() + " " + auth.getRol());
-            response.put("auth", auth);
+            if(rol_user.equals("ROLE_CLIENTE")){
+                Optional<Cliente> cliente = this.clienteRepo.findByUsername(login.getUsername());
+                if(!cliente.get().getEstado()){
+                    response.put("mensaje", "Error al iniciar sesion");
+                    response.put("error", "El cliente esta inactivo. Active la cuenta abriendo el enlace enviado a su correo");
+                    return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_ACCEPTABLE);
+                }
+            }
+            final String token = jwtTokenUtil.generateToken(userDetails);
+            LoginRespuesta loginRespuesta = new LoginRespuesta(userDetails.getUsername(), EncriptacionUtil.encrypt(token));
+            response.put("login", loginRespuesta);
+            response.put("mensaje", "El usuario ha sido iniciado sesion con exito");
         } catch (Exception e) {
-            response.put("mensaje", "Error al buscar el usuario");
+            response.put("mensaje", "Error al iniciar sesion");
             response.put("error", e.getMessage());
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
         }
@@ -273,4 +310,13 @@ public class ClienteController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
+    private void autenticarUsuario(String username, String password) throws Exception {
+        try{
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+        }catch(DisabledException e){
+            throw new Exception("Usuario deshabilitado");
+        }catch(BadCredentialsException e){
+            throw new BadCredentialsException("Las credenciales son invalidas");
+        }
+    }
 }

@@ -5,6 +5,8 @@ dependencies {
     implementation 'com.google.zxing:core:3.5.1'
     implementation 'com.google.zxing:javase:3.5.1'
     implementation 'com.cloudinary:cloudinary-http44:1.33.0'
+    implementation 'org.springframework.boot:spring-boot-starter-security:2.7.5'
+    implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
     runtimeOnly 'mysql:mysql-connector-java'
 }
 test {

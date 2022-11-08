@@ -10,6 +10,7 @@ import java.util.Optional;
 @Repository
 public interface AdministradorRepo extends JpaRepository<Administrador,Integer> {
 
+    Optional<Administrador> findByUsername(String username);
     Administrador findByCorreoAndPassword(String correo, String clave);
 
     @Query("select c from Administrador c where c.correo = :correo and c.password = :password")
