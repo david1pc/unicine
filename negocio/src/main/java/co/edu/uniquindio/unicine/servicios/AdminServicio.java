@@ -1,6 +1,8 @@
 package co.edu.uniquindio.unicine.servicios;
 
 import co.edu.uniquindio.unicine.entidades.*;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -13,8 +15,8 @@ public interface AdminServicio {
 
     // Gestionar Películas
 
-    Pelicula crearPelicula (Pelicula pelicula) throws Exception;
-    Pelicula actualizarPelicula (Pelicula pelicula) throws Exception;
+    Pelicula crearPelicula (Pelicula pelicula, MultipartFile imagen) throws Exception;
+    Pelicula actualizarPelicula (Pelicula pelicula, MultipartFile imagen) throws Exception;
     void eliminarPelicula (Integer codigo) throws Exception;
     List <Pelicula> listarPeliculas ();
     Pelicula obtenerPelicula (Integer codigo) throws Exception;
@@ -27,8 +29,8 @@ public interface AdminServicio {
     Cupon obtenerCupon (Integer codigo)throws Exception;
 
     // Gestionar Confiteria
-    Confiteria crearConfiteria (Confiteria confiteria)throws Exception;
-    Confiteria actualizarConfiteria (Confiteria confiteria)throws Exception;
+    Confiteria crearConfiteria (Confiteria confiteria, MultipartFile imagen)throws Exception;
+    Confiteria actualizarConfiteria (Confiteria confiteria, MultipartFile imagen)throws Exception;
     void eliminarConfiteria (Integer codigo)throws Exception;
     List <Confiteria> listarConfiteria ();
     Confiteria obtenerConfiteria (Integer codigo)throws Exception;
@@ -45,6 +47,6 @@ public interface AdminServicio {
     AdministradorTeatro crearAdministradorTeatro (AdministradorTeatro administradorTeatro)throws Exception;
     AdministradorTeatro actualizarAdministradorTeatro (AdministradorTeatro administradorTeatro)throws Exception;
     void eliminarAdministradorTeatro (Integer codigo)throws Exception;
-    List <AdministradorTeatro> listarAdministradoresTeatro ();
+    List <AdministradorTeatro> listarAdministradoresTeatro () throws Exception;
     AdministradorTeatro obtenerAdministradorTeatro (Integer codigo)throws Exception;
 }

@@ -70,7 +70,7 @@ public class JwtUserDetailsServicio implements UserDetailsService {
             authorities.add(new SimpleGrantedAuthority(administradorTeatro.getRol().getNombre()));
             return new org.springframework.security.core.userdetails.User(administradorTeatro.getUsername(), administradorTeatro.getPassword(), authorities);
         }else{
-            throw new Exception("El username es incorrecto");
+            throw new Exception("El username o contraseña es incorrecto");
         }
     }
 }

@@ -1,8 +1,6 @@
 package co.edu.uniquindio.unicine.controladores;
 
-import co.edu.uniquindio.unicine.entidades.Cupon;
-import co.edu.uniquindio.unicine.entidades.Imagen;
-import co.edu.uniquindio.unicine.entidades.Pelicula;
+import co.edu.uniquindio.unicine.entidades.*;
 import co.edu.uniquindio.unicine.repo.AdministradorRepo;
 import co.edu.uniquindio.unicine.repo.ImagenRepo;
 import co.edu.uniquindio.unicine.servicios.AdminServicio;
@@ -84,30 +82,10 @@ public class AdminController {
         }
 
         try {
-            Map<String, String> respuesta = cloudinaryServicio.subirImagen(imagen, "peliculas");
-            Imagen nueva_imagen = new Imagen((String)respuesta.get("original_filename"), (String)respuesta.get("url"), (String)respuesta.get("public_id"));
-            Imagen img = this.imagenRepo.save(nueva_imagen);
-            pelicula_nueva.setImagen(img);
-            Pelicula nueva = this.adminServicio.crearPelicula(pelicula_nueva);
-            response.put("pelicula", nueva);
-            response.put("mensaje", "Se ha creado la pelicula con exito!");
-        } catch (Exception e) {
-            response.put("mensaje", "Error al crear la pelicula");
-            response.put("error", e.getMessage());
-            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
-        }
-
-        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/peliculas-data/")
-    @ResponseStatus(code = HttpStatus.CREATED)
-    public ResponseEntity<?> crearPelicula(@RequestBody Pelicula pelicula){
-        Map<String, Object> response = new HashMap<>();
-
-        try {
-            Pelicula nueva = this.adminServicio.crearPelicula(pelicula);
+            if(imagen.isEmpty()){
+                imagen = null;
+            }
+            Pelicula nueva = this.adminServicio.crearPelicula(pelicula_nueva, imagen);
             response.put("pelicula", nueva);
             response.put("mensaje", "Se ha creado la pelicula con exito!");
         } catch (Exception e) {
@@ -136,36 +114,10 @@ public class AdminController {
         logger.info("Actualizando pelicula... " + pelicula_update);
 
         try {
-            if(pelicula_update.getImagen() != null){
-                this.cloudinaryServicio.eliminarImagen(pelicula_update.getImagen().getImagenId());
-                this.imagenRepo.eliminarById(pelicula_update.getImagen().getCodigo());
+            if(imagen.isEmpty()){
+                imagen = null;
             }
-            Map<String, String> respuesta = this.cloudinaryServicio.subirImagen(imagen, "peliculas");
-            Imagen nueva_imagen = new Imagen((String)respuesta.get("original_filename"), (String)respuesta.get("url"), (String)respuesta.get("public_id"));
-            Imagen img = this.imagenRepo.save(nueva_imagen);
-            pelicula_update.setImagen(img);
-            Pelicula pelicula_actual = this.adminServicio.actualizarPelicula(pelicula_update);
-            response.put("pelicula", pelicula_actual);
-            response.put("mensaje", "Se ha actualizado la pelicula con exito!");
-        } catch (Exception e) {
-            response.put("mensaje", "Error al actualizar la pelicula");
-            response.put("error", e.getMessage());
-            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
-        }
-
-        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/peliculas-data/")
-    @ResponseStatus(code = HttpStatus.CREATED)
-    public ResponseEntity<?> actualizarPelicula(@RequestBody Pelicula pelicula){
-        Map<String, Object> response = new HashMap<>();
-
-        logger.info("Actualizando pelicula... " + pelicula);
-
-        try {
-            Pelicula pelicula_actual = this.adminServicio.actualizarPelicula(pelicula);
+            Pelicula pelicula_actual = this.adminServicio.actualizarPelicula(pelicula_update, imagen);
             response.put("pelicula", pelicula_actual);
             response.put("mensaje", "Se ha actualizado la pelicula con exito!");
         } catch (Exception e) {
@@ -285,6 +237,188 @@ public class AdminController {
         }
 
         response.put("mensaje", "Se han eliminado los cupones con exito");
+        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/teatro")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> obtener_admins_teatro(){
+        Map<String, Object> response = new HashMap<>();
+
+        try{
+            List<AdministradorTeatro> adminsTeatros = this.adminServicio.listarAdministradoresTeatro();
+            response.put("admins_teatro", adminsTeatros);
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+        }catch(Exception e){
+            response.put("mensaje", "Error al obtener los administradores de teatro");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PostMapping("/teatro")
+    @PreAuthorize("hasRole('ADMIN')")
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public ResponseEntity<?> crearAdminTeatro(@RequestBody AdministradorTeatro administradorTeatro){
+        Map<String, Object> response = new HashMap<>();
+
+        try{
+            AdministradorTeatro  nuevoAdministradorTeatro = this.adminServicio.crearAdministradorTeatro(administradorTeatro);
+            response.put("mensaje", "El administrador de teatro ha sido creado con exito");
+            response.put("admin_teatro", nuevoAdministradorTeatro);
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
+        }catch(Exception e){
+            response.put("mensaje", "Error al crear un administrador de teatro");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_ACCEPTABLE);
+        }
+    }
+
+    @PutMapping("/teatro")
+    @PreAuthorize("hasRole('ADMIN')")
+    @ResponseStatus(code = HttpStatus.ACCEPTED)
+    public ResponseEntity<?> actualizarAdminTeatro(@RequestBody AdministradorTeatro administradorTeatro){
+        Map<String, Object> response = new HashMap<>();
+
+        try{
+            AdministradorTeatro nuevoAdminTeatro = this.adminServicio.actualizarAdministradorTeatro(administradorTeatro);
+            response.put("mensaje", "El administrador de teatro ha sido actualizado con exito");
+            response.put("admin_teatro", nuevoAdminTeatro);
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
+        }catch(Exception e){
+            response.put("mensaje", "Error al actualizar un administrador de teatro");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/teatro/eliminar")
+    @ResponseStatus(code = HttpStatus.OK)
+    public ResponseEntity<?> eliminarAdminTeatro(@RequestBody Integer adminTeatro_ids []){
+        Map<String, Object> response = new HashMap<>();
+        logger.info("Eliminando admins teatro... " + adminTeatro_ids);
+
+        for (int i = 0; i < adminTeatro_ids.length; i++){
+            Integer id = adminTeatro_ids[i].intValue();
+            try {
+                this.adminServicio.eliminarAdministradorTeatro(id);
+                response.put("mensaje", "El administrador teatro se ha eliminado con exito!");
+            } catch (Exception e) {
+                response.put("mensaje", "Error al eliminar el administrador teatro " + id);
+                response.put("error", e.getMessage());
+                return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+            }
+        }
+
+        if(adminTeatro_ids.length > 1){
+            response.put("mensaje", "Se han eliminado los administradores de teatro con exito");
+        }
+
+        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping(value = "/confiteria/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public ResponseEntity<?> crearConfiteria(@RequestParam(name = "imagen") @Size(min = 1) MultipartFile imagen, @RequestPart(name = "confiteria") String confiteria){
+        Map<String, Object> response = new HashMap<>();
+        Confiteria confiteria_nueva = null;
+
+        try {
+            confiteria_nueva = new ObjectMapper().readValue(confiteria, Confiteria.class);
+        } catch (JsonProcessingException e) {
+            response.put("mensaje", "Error al crear la confiteria");
+            response.put("error", "No se reconocen los datos de la confiteria");
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_ACCEPTABLE);
+        }
+
+        try {
+            if(imagen.isEmpty()){
+                imagen = null;
+            }
+            Confiteria nueva = this.adminServicio.crearConfiteria(confiteria_nueva, imagen);
+            response.put("confiteria", nueva);
+            response.put("mensaje", "Se ha creado la confiteria con exito!");
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
+        } catch (Exception e) {
+            response.put("mensaje", "Error al crear la confiteria");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping(value = "/confiteria/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public ResponseEntity<?> actualizarConfiteria(@RequestParam(name = "imagen") @Size(min = 1) MultipartFile imagen, @RequestPart(name = "confiteria") String confiteria){
+        Map<String, Object> response = new HashMap<>();
+        Confiteria confiteria_update = null;
+
+        try {
+            confiteria_update = new ObjectMapper().readValue(confiteria, Confiteria.class);
+        } catch (JsonProcessingException e) {
+            response.put("mensaje", "Error al actualizar la confiteria");
+            response.put("error", "No se reconocen los datos de la confiteria");
+        }
+
+        logger.info("Actualizando confiteria... " + confiteria_update);
+
+        try {
+            if(imagen.isEmpty()){
+               imagen = null;
+            }
+            Confiteria confiteria_nueva = this.adminServicio.actualizarConfiteria(confiteria_update, imagen);
+            response.put("confiteria", confiteria_nueva);
+            response.put("mensaje", "Se ha actualizado la confiteria con exito!");
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
+        } catch (Exception e) {
+            response.put("mensaje", "Error al actualizar la confiteria");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
+    }
+
+
+    @GetMapping("/confiteria")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> obtener_confiterias(){
+        Map<String, Object> response = new HashMap<>();
+
+        try{
+            List<Confiteria> confiterias = this.adminServicio.listarConfiteria();
+            response.put("confiterias", confiterias);
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+        }catch(Exception e){
+            response.put("mensaje", "Error al obtener los administradores de teatro");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/confiteria/eliminar")
+    @ResponseStatus(code = HttpStatus.OK)
+    public ResponseEntity<?> eliminarConfiteria(@RequestBody Integer confiteria_ids []){
+        Map<String, Object> response = new HashMap<>();
+        logger.info("Eliminando confiterias_ids... " + confiteria_ids);
+
+        for (int i = 0; i < confiteria_ids.length; i++){
+            Integer id = confiteria_ids[i].intValue();
+            try {
+                this.adminServicio.eliminarConfiteria(id);
+                response.put("mensaje", "La confiteria se ha eliminado con exito!");
+            } catch (Exception e) {
+                response.put("mensaje", "Error al eliminar la confiteria con id: " + id);
+                response.put("error", e.getMessage());
+                return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+            }
+        }
+
+        if(confiteria_ids.length > 1){
+            response.put("mensaje", "Se han eliminado las confiterias con exito");
+        }
+
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 }

@@ -21,17 +21,20 @@ public class Combo implements Serializable {
     private String nombre;
     private Double precio;
     private String descripcion;
-    private String imagen;
+
+    @OneToOne
+    private Imagen imagen;
     @ToString.Exclude
     @OneToMany(mappedBy = "combo")
     private List<CompraCombo> compraCombos;
 
     @Builder
-    public Combo(Integer codigo, String nombre, Double precio, String descripcion, List<CompraCombo> compraCombos) {
+    public Combo(Integer codigo, String nombre, Double precio, String descripcion, List<CompraCombo> compraCombos, Imagen imagen) {
         this.codigo = codigo;
         this.nombre = nombre;
         this.precio = precio;
         this.descripcion = descripcion;
         this.compraCombos = compraCombos;
+        this.imagen = imagen;
     }
 }

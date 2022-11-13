@@ -54,7 +54,7 @@ public class AdminServicioTest {
         Pelicula pelicula = Pelicula.builder().codigo(10).nombre("Fragmentado").sinopsis("Kevin, un hombre con 23 personalidades, secuestra a 3 chicas jóvenes " +
                 "y las mantiene retenidas en un sótano").imagen(imagen).genero(Genero.TERROR).estado(true).reparto("James MCavoy").build();
         try {
-            Pelicula peliculaNueva = adminServicio.crearPelicula(pelicula);
+            Pelicula peliculaNueva = adminServicio.crearPelicula(pelicula, null);
             System.out.println(peliculaNueva);
             Assertions.assertNotNull(peliculaNueva);
         } catch (Exception e) {
@@ -67,7 +67,7 @@ public class AdminServicioTest {
         try {
             Pelicula pelicula = adminServicio.obtenerPelicula(1);
             pelicula.setNombre("Predestinación");
-            Pelicula nueva = adminServicio.actualizarPelicula(pelicula);
+            Pelicula nueva = adminServicio.actualizarPelicula(pelicula, null);
             Assertions.assertEquals("Predestinación", nueva.getNombre());
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -166,7 +166,7 @@ public class AdminServicioTest {
     public void crearConfiteriaTest(){
         Confiteria confiteria = Confiteria.builder().codigo(20).nombre("Tostacos").precio(30000.0).descripcion("Los tostacos saben rico").build();
         try {
-            Confiteria confiteriaNueva = adminServicio.crearConfiteria(confiteria);
+            Confiteria confiteriaNueva = adminServicio.crearConfiteria(confiteria, null);
             Assertions.assertNotNull(confiteriaNueva);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -179,7 +179,7 @@ public class AdminServicioTest {
         try {
             Confiteria confiteria = adminServicio.obtenerConfiteria(1);
             confiteria.setDescripcion("yumii");
-            Confiteria confiteriaNueva = adminServicio.actualizarConfiteria(confiteria);
+            Confiteria confiteriaNueva = adminServicio.actualizarConfiteria(confiteria, null);
             Assertions.assertEquals("yumii", confiteriaNueva.getDescripcion());
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -314,8 +314,9 @@ public class AdminServicioTest {
 
     @Test
     @Sql("classpath:dataset.sql")
-    public void listarAdminTeatroTest(){
+    public void listarAdminTeatroTest() throws Exception {
         List<AdministradorTeatro> lista = adminServicio.listarAdministradoresTeatro();
+
         lista.forEach(System.out::println);
     }
 

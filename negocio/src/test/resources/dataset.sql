@@ -83,11 +83,11 @@ insert into funcion(codigo, precio, horario_codigo, pelicula_codigo, sala_codigo
 insert into funcion(codigo, precio, horario_codigo, pelicula_codigo, sala_codigo) values(4, 10000, 4, 4, 4);
 insert into funcion(codigo, precio, horario_codigo, pelicula_codigo, sala_codigo) values(5, 8000, 5, 5, 5);
 
-insert into confiteria(codigo, nombre, descripcion, precio, imagen) values(1, "Crispetas caramelo", "Tamaño normal", 12500, "assf");
-insert into confiteria(codigo, nombre, descripcion, precio, imagen) values(2, "Crispetas", "Tamaño normal", 9000, "assf");
-insert into confiteria(codigo, nombre, descripcion, precio, imagen) values(3, "Perro caliente", "Tamaño normal", 15000, "assf");
-insert into confiteria(codigo, nombre, descripcion, precio, imagen) values(4, "Coca cola", "1L", 5000, "assf");
-insert into confiteria(codigo, nombre, descripcion, precio, imagen) values(5, "Pepsi", "1L", 5000, "assf");
+insert into confiteria(codigo, nombre, descripcion, precio, imagen_codigo) values(1, "Crispetas caramelo", "Tamaño normal", 12500, 1);
+insert into confiteria(codigo, nombre, descripcion, precio, imagen_codigo) values(2, "Crispetas", "Tamaño normal", 9000, 2);
+insert into confiteria(codigo, nombre, descripcion, precio, imagen_codigo) values(3, "Perro caliente", "Tamaño normal", 15000, 3);
+insert into confiteria(codigo, nombre, descripcion, precio, imagen_codigo) values(4, "Coca cola", "1L", 5000, 4);
+insert into confiteria(codigo, nombre, descripcion, precio, imagen_codigo) values(5, "Pepsi", "1L", 5000, 5);
 
 
 insert into cupon_cliente(codigo, estado, cliente_codigo, cupon_codigo) values(1, 1, 1, 1);
@@ -116,11 +116,11 @@ insert into compra_confiteria(codigo, precio, cantidad, compra_codigo, confiteri
 insert into compra_confiteria(codigo, precio, cantidad, compra_codigo, confiteria_codigo) values(4, 10000, 2, 4, 4);
 insert into compra_confiteria(codigo, precio, cantidad, compra_codigo, confiteria_codigo) values(5, 5000, 1, 5, 5);
 
-insert into combo(codigo, nombre, precio, descripcion, imagen) values(1, "Combo papas francesas y hamburguesa doble queso", 9000, "Desc", "/imagen");
-insert into combo(codigo, nombre, precio, descripcion, imagen) values(2, "Combo papas francesas y perro", 9000, "Desc", "/imagen");
-insert into combo(codigo, nombre, precio, descripcion, imagen) values(3, "Combo palomitas y pepsi", 20000, "Palomitas XL y pepsi 2L", "/imagen");
-insert into combo(codigo, nombre, precio, descripcion, imagen) values(4, "Combo palomitas y coca cola", 15000, "Palomitas X y pepsi 2L", "/imagen");
-insert into combo(codigo, nombre, precio, descripcion, imagen) values(5, "Combo palomitas dulces y pepsi", 25000, "Palomitas XL y pepsi 2L", "/imagen");
+insert into combo(codigo, nombre, precio, descripcion, imagen_codigo) values(1, "Combo papas francesas y hamburguesa doble queso", 9000, "Desc", 1);
+insert into combo(codigo, nombre, precio, descripcion, imagen_codigo) values(2, "Combo papas francesas y perro", 9000, "Desc", 2);
+insert into combo(codigo, nombre, precio, descripcion, imagen_codigo) values(3, "Combo palomitas y pepsi", 20000, "Palomitas XL y pepsi 2L", 3);
+insert into combo(codigo, nombre, precio, descripcion, imagen_codigo) values(4, "Combo palomitas y coca cola", 15000, "Palomitas X y pepsi 2L", 4);
+insert into combo(codigo, nombre, precio, descripcion, imagen_codigo) values(5, "Combo palomitas dulces y pepsi", 25000, "Palomitas XL y pepsi 2L", 5);
 
 insert into compra_combo(codigo, cantidad, precio, compra_codigo, combo_codigo) values(1, 2, 18000, 1, 1);
 insert into compra_combo(codigo, cantidad, precio, compra_codigo, combo_codigo) values(2, 1, 9000, 2, 2);

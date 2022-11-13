@@ -1,9 +1,7 @@
 package co.edu.uniquindio.unicine.controladores;
 
 import co.edu.uniquindio.unicine.entidades.*;
-import co.edu.uniquindio.unicine.repo.AdministradorRepo;
 import co.edu.uniquindio.unicine.repo.ClienteRepo;
-import co.edu.uniquindio.unicine.repo.ImagenRepo;
 import co.edu.uniquindio.unicine.servicios.*;
 import co.edu.uniquindio.unicine.util.EncriptacionUtil;
 import co.edu.uniquindio.unicine.util.JwtTokenUtil;
@@ -23,8 +21,6 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,12 +37,6 @@ public class ClienteController {
 
     @Autowired
     private ClienteServicio clienteServicio;
-
-    @Autowired
-    private CloudinaryServicio cloudinaryServicio;
-
-    @Autowired
-    private ImagenRepo imagenRepo;
 
     @Autowired
     private EmailServicio emailServicio;
@@ -118,12 +108,8 @@ public class ClienteController {
         }
 
         try {
-            Map<String, String> respuesta = cloudinaryServicio.subirImagen(imagen, "clientes");
-            Imagen nueva_imagen = new Imagen((String)respuesta.get("original_filename"), (String)respuesta.get("url"), (String)respuesta.get("public_id"));
-            Imagen img = this.imagenRepo.save(nueva_imagen);
-            cliente_nuevo.setImagen(img);
-            Cliente nuevo = this.clienteServicio.registrarCliente(cliente_nuevo);
-            String username_enc = EncriptacionUtil.encrypt(nuevo.getUsername());
+            Cliente nuevo = this.clienteServicio.registrarCliente(cliente_nuevo, imagen);
+            String username_enc = encriptarUsername(nuevo.getUsername());
             String route = this.devRoute.concat("auth/activacion/"+username_enc);
             this.emailServicio.enviarEmail("Registro de cuenta en Unicine", route, nuevo.getCorreo());
             response.put("cliente", nuevo);
@@ -139,73 +125,73 @@ public class ClienteController {
 
     @PostMapping("/registro-data/")
     @ResponseStatus(code = HttpStatus.CREATED)
-    public ResponseEntity<?> registrarCliente(@Valid @RequestBody Cliente cliente, BindingResult result) {
+    public ResponseEntity<?> registrarCliente(@RequestBody Cliente cliente) {
         Cliente clienteNuevo = null;
 
         Map<String, Object> response = new HashMap<>();
 
-        if(result.hasErrors()) {
-            List<String> errors = result.getFieldErrors()
-                    .stream()
-                    .map(err -> "El campo '" + err.getField() + "' " + err.getDefaultMessage())
-                    .collect(Collectors.toList());
-
-            response.put("errors", errors);
-            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
-        }
-
         try {
-            clienteNuevo = this.clienteServicio.registrarCliente(cliente);
-            String username_enc = EncriptacionUtil.encrypt(clienteNuevo.getUsername());
+            clienteNuevo = this.clienteServicio.registrarCliente(cliente, null);
+            String username_enc = encriptarUsername(clienteNuevo.getUsername());
             String route = this.devRoute.concat("auth/activacion/"+username_enc);
             this.emailServicio.enviarEmail("Registro de cuenta en Unicine", route, clienteNuevo.getCorreo());
             response.put("cliente", clienteNuevo);
             response.put("mensaje", "El cliente " + clienteNuevo.getPrimerNombre() + ", ha sido registrado con exito!. Se le ha enviado a su correo un enlace para activar la cuenta");
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
         }catch(Exception e) {
-            response.put("mensaje", "Error al realizar el insert a la base de datos");
+            response.put("mensaje", "Error al registrarse en unicine");
             response.put("error", e.getMessage());
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
         }
-
-        response.put("mensaje", "El cliente ha sido creado con éxito!");
-        response.put("cliente", clienteNuevo);
-
-        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
-    @PutMapping("/")
+    private String encriptarUsername(String username){
+        String username_enc = EncriptacionUtil.encrypt(username);
+        return username_enc;
+    }
+
+    @PutMapping(value = "/actualizacion/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(code = HttpStatus.CREATED)
-    public ResponseEntity<Map<String, Object>> actualizarCliente(@Valid @RequestBody Cliente cliente, BindingResult result) {
+    public ResponseEntity<Map<String, Object>> actualizarCliente(@RequestParam(name = "imagen") @Size(min = 1) MultipartFile imagen, @RequestPart(name = "cliente") String cliente) {
         Map<String, Object> response = new HashMap<>();
-        Cliente clienteActual = null;
 
-        if (result.hasErrors()){
-            List<String> errors = result.getFieldErrors()
-                    .stream()
-                    .map(err -> "El campo '" + err.getField() + "' " + err.getDefaultMessage())
-                    .collect(Collectors.toList());
+        Cliente cliente_nuevo = null;
 
-            response.put("errors", errors);
-            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
+        try {
+            cliente_nuevo = new ObjectMapper().readValue(cliente, Cliente.class);
+        } catch (JsonProcessingException e) {
+            response.put("mensaje", "Error al actualizar el cliente");
+            response.put("error", "No se reconocen los datos del cliente");
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_ACCEPTABLE);
         }
 
         try {
-            clienteActual = this.clienteServicio.actualizarCliente(cliente);
+            Cliente clienteActual = this.clienteServicio.actualizarCliente(cliente_nuevo, imagen);
+            response.put("mensaje", "El cliente ha sido actualizado con éxito!");
+            response.put("cliente", clienteActual);
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
         } catch (Exception e) {
-            response.put("mensaje", "No se pudo editar, el cliente con ID ".concat(cliente.getCodigo().toString()));
+            response.put("mensaje", "Error al actualizar el cliente");
             response.put("error", e.getMessage());
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
         }
+    }
 
-        if(clienteActual == null) {
-            response.put("mensaje", "No se pudo editar, el cliente con ID ".concat(cliente.getCodigo().toString().concat(" no éxiste en la base de datos!")));
+    @PutMapping("/actualizacion-data/")
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public ResponseEntity<Map<String, Object>> actualizarCliente(@RequestBody Cliente cliente) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            Cliente clienteActual = this.clienteServicio.actualizarCliente(cliente, null);
+            response.put("mensaje", "El cliente ha sido actualizado con éxito!");
+            response.put("cliente", clienteActual);
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
+        } catch (Exception e) {
+            response.put("mensaje", "Error al actualizar el cliente");
+            response.put("error", e.getMessage());
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
         }
-
-        response.put("mensaje", "El cliente ha sido actualizado con éxito!");
-        response.put("cliente", clienteActual);
-
-        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{id}")
@@ -265,7 +251,7 @@ public class ClienteController {
             String username = EncriptacionUtil.decrypt(str);
             Optional<Cliente> cliente = this.clienteRepo.findByUsername(username);
             cliente.get().setEstado(true);
-            this.clienteServicio.actualizarCliente(cliente.get());
+            this.clienteServicio.actualizarCliente(cliente.get(), null);
             response.put("mensaje", "Su cuenta ha sido activada con exito");
             response.put("estado", cliente.get().getEstado());
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
@@ -298,7 +284,7 @@ public class ClienteController {
                 }
             }
             final String token = jwtTokenUtil.generateToken(userDetails);
-            LoginRespuesta loginRespuesta = new LoginRespuesta(userDetails.getUsername(), EncriptacionUtil.encrypt(token));
+            LoginRespuesta loginRespuesta = new LoginRespuesta(userDetails.getUsername(), EncriptacionUtil.encrypt(token), rol_user);
             response.put("login", loginRespuesta);
             response.put("mensaje", "El usuario ha sido iniciado sesion con exito");
         } catch (Exception e) {
@@ -316,7 +302,7 @@ public class ClienteController {
         }catch(DisabledException e){
             throw new Exception("Usuario deshabilitado");
         }catch(BadCredentialsException e){
-            throw new BadCredentialsException("Las credenciales son invalidas");
+            throw new BadCredentialsException("El username o contraseña es incorrecto");
         }
     }
 }

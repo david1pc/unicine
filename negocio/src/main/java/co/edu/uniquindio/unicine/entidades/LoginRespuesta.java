@@ -14,9 +14,11 @@ import java.io.Serializable;
 public class LoginRespuesta implements Serializable {
     private String jwttoken;
     private String username;
+    private String rol;
 
-    public LoginRespuesta(String name, String jwttoken) {
+    public LoginRespuesta(String name, String jwttoken, String rol) {
         this.username = name;
         this.jwttoken = jwttoken;
+        this.rol = rol;
     }
 }

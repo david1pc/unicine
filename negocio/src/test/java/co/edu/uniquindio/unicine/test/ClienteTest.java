@@ -19,6 +19,7 @@ import java.util.Optional;
 public class ClienteTest {
     @Autowired
     private ClienteRepo clienteRepo;
+    /*
     @Test
     @Sql("classpath:dataset.sql")
     public void registrar(){
@@ -29,7 +30,7 @@ public class ClienteTest {
         Cliente guardado = clienteRepo.save(cliente);
         Assertions.assertNotNull(guardado);
     }
-
+*/
     @Test
     @Sql("classpath:dataset.sql")
     public void eliminar(){

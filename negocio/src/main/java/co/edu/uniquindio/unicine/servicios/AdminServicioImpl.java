@@ -2,9 +2,18 @@ package co.edu.uniquindio.unicine.servicios;
 
 import co.edu.uniquindio.unicine.entidades.*;
 import co.edu.uniquindio.unicine.repo.*;
+import co.edu.uniquindio.unicine.util.EncriptacionUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -16,14 +25,31 @@ public class AdminServicioImpl implements AdminServicio  {
      private ConfiteriaRepo confiteriaRepo;
      private ComboRepo comboRepo;
      private AdministradorTeatroRepo administradorTeatroRepo;
+     private ClienteRepo clienteRepo;
+     private AdministradorRepo adminRepo;
+     private ImagenRepo imagenRepo;
+     @Autowired
+     CloudinaryServicio cloudinaryServicio;
 
-    public AdminServicioImpl(CiudadRepo ciudadRepo, PeliculaRepo peliculaRepo, CuponRepo cuponRepo, ConfiteriaRepo confiteriaRepo, ComboRepo comboRepo, AdministradorTeatroRepo administradorTeatroRepo) {
+
+    protected final Log logger = LogFactory.getLog(this.getClass());
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
+     private ClienteServicio clienteServicio;
+
+    public AdminServicioImpl(CiudadRepo ciudadRepo, PeliculaRepo peliculaRepo, CuponRepo cuponRepo, ConfiteriaRepo confiteriaRepo, ComboRepo comboRepo, AdministradorTeatroRepo administradorTeatroRepo, ClienteServicio clienteServicio, ClienteRepo clienteRepo, AdministradorRepo administradorRepo, ImagenRepo imagenRepo) {
         this.ciudadRepo = ciudadRepo;
         this.peliculaRepo = peliculaRepo;
         this.cuponRepo = cuponRepo;
         this.confiteriaRepo = confiteriaRepo;
         this.comboRepo = comboRepo;
         this.administradorTeatroRepo = administradorTeatroRepo;
+        this.clienteServicio = clienteServicio;
+        this.clienteRepo = clienteRepo;
+        this.adminRepo = administradorRepo;
+        this.imagenRepo = imagenRepo;
     }
     // gestionar ciudades
 
@@ -53,12 +79,17 @@ public class AdminServicioImpl implements AdminServicio  {
     }
 
     @Override
-    public Pelicula crearPelicula(Pelicula pelicula) throws Exception {
+    public Pelicula crearPelicula(Pelicula pelicula, MultipartFile imagen) throws Exception {
         if (pelicula == null){
             throw new Exception("La pelicula no tiene datos");
         }
-        return peliculaRepo.save(pelicula);
 
+        if(imagen != null){
+            Imagen img = cloudinaryServicio.guardarImagen(imagen, "peliculas");
+            pelicula.setImagen(img);
+        }
+
+        return peliculaRepo.save(pelicula);
     }
 
     private Boolean peliculaExiste (Integer codigo){
@@ -66,11 +97,22 @@ public class AdminServicioImpl implements AdminServicio  {
     }
 
     @Override
-    public Pelicula actualizarPelicula(Pelicula pelicula) throws Exception {
+    public Pelicula actualizarPelicula(Pelicula pelicula, MultipartFile imagen) throws Exception {
         boolean peliculaExiste = peliculaExiste(pelicula.getCodigo());
         if (!peliculaExiste){
             throw new Exception("La película no existe");
         }
+
+        if(imagen != null){
+            Imagen img = new Imagen();
+            if(pelicula.getImagen() == null){
+                img = this.cloudinaryServicio.actualizarImagen(imagen, null,"peliculas");
+            }else{
+                img = this.cloudinaryServicio.actualizarImagen(imagen, pelicula.getImagen(),"peliculas");
+            }
+            pelicula.setImagen(img);
+        }
+
         return peliculaRepo.save(pelicula);
     }
 
@@ -158,11 +200,17 @@ public class AdminServicioImpl implements AdminServicio  {
 
     // confitería
     @Override
-    public Confiteria crearConfiteria(Confiteria confiteria) throws Exception {
+    public Confiteria crearConfiteria(Confiteria confiteria, MultipartFile imagen) throws Exception {
         boolean confiteriaExiste = confiteriaExiste(confiteria.getCodigo());
         if (confiteriaExiste){
             throw new Exception("La confitería ya existe");
         }
+
+        if(imagen != null){
+            Imagen img = cloudinaryServicio.guardarImagen(imagen, "confiteria");
+            confiteria.setImagen(img);
+        }
+
         return confiteriaRepo.save(confiteria);
     }
 
@@ -171,11 +219,22 @@ public class AdminServicioImpl implements AdminServicio  {
     }
 
     @Override
-    public Confiteria actualizarConfiteria(Confiteria confiteria) throws Exception {
+    public Confiteria actualizarConfiteria(Confiteria confiteria, MultipartFile imagen) throws Exception {
         boolean confiteriaExiste = confiteriaExiste(confiteria.getCodigo());
         if (!confiteriaExiste){
             throw new Exception("La confitería no existe");
         }
+
+        if(imagen != null){
+            Imagen img = new Imagen();
+            if(confiteria.getImagen() == null){
+                img = this.cloudinaryServicio.actualizarImagen(imagen, null,"confiteria");
+            }else{
+                img = this.cloudinaryServicio.actualizarImagen(imagen, confiteria.getImagen(),"confiteria");
+            }
+            confiteria.setImagen(img);
+        }
+
         return confiteriaRepo.save(confiteria);
     }
 
@@ -187,7 +246,11 @@ public class AdminServicioImpl implements AdminServicio  {
             throw new Exception("la confitería no existe");
         }
 
-        confiteriaRepo.delete(confiteria.get());
+        try{
+            confiteriaRepo.delete(confiteria.get());
+        }catch(Exception e){
+            throw new Exception("La confiteria con id: " + codigo + ", no puede eliminarse. Se encuentra relacionada con una o más compras");
+        }
     }
 
     @Override
@@ -205,6 +268,8 @@ public class AdminServicioImpl implements AdminServicio  {
 
         return confiteria.get();
     }
+
+
 
     // combos
 
@@ -265,11 +330,14 @@ public class AdminServicioImpl implements AdminServicio  {
     // Administradores de teatros
     @Override
     public AdministradorTeatro crearAdministradorTeatro(AdministradorTeatro administradorTeatro) throws Exception {
-        boolean administradorExiste = administradorTeatroExiste(administradorTeatro.getCodigo());
-        if (administradorExiste){
-            throw new Exception("El administrador ya existe");
+        verificarCredenciales(administradorTeatro.getCorreo(), administradorTeatro.getUsername(), null);
+        try{
+            administradorTeatro.setPassword(passwordEncoder.encode(administradorTeatro.getPassword()));
+            AdministradorTeatro nuevo = administradorTeatroRepo.save(administradorTeatro);
+            return nuevo;
+        }catch (Exception e){
+            throw new Exception("No se ha logrado crear un administrador teatro, intentelo de nuevo.");
         }
-        return administradorTeatroRepo.save(administradorTeatro);
     }
 
     private Boolean administradorTeatroExiste (Integer codigo){
@@ -278,11 +346,86 @@ public class AdminServicioImpl implements AdminServicio  {
 
     @Override
     public AdministradorTeatro actualizarAdministradorTeatro(AdministradorTeatro administradorTeatro) throws Exception {
-        boolean administradorExiste = administradorTeatroExiste(administradorTeatro.getCodigo());
-        if (!administradorExiste){
-            throw new Exception("El administrador no existe");
+        Optional<AdministradorTeatro> guardado = this.administradorTeatroRepo.findById(administradorTeatro.getCodigo());
+        if (guardado.isEmpty()){
+            throw new Exception("El administrador de teatro no existe");
         }
-        return administradorTeatroRepo.save(administradorTeatro);
+
+        verificarCredenciales(administradorTeatro.getCorreo(), administradorTeatro.getUsername(), administradorTeatro.getCodigo());
+
+        return actualizarAdminTeatroVerificado(administradorTeatro, guardado.get().getPassword());
+    }
+
+    private void verificarCredenciales(String correo, String username, Integer codigo) throws Exception {
+        if(correo != null){
+            Boolean correoExiste = esCorreoRepetido(correo, codigo);
+
+            if(correoExiste){
+                throw new Exception("El correo ya se encuentra en uso");
+            }
+        }
+
+        if(username != null){
+            Boolean usernameExiste = esUsernameRepetido(username, codigo);
+
+            if(usernameExiste){
+                throw new Exception("El username ya se encuentra en uso");
+            }
+        }
+    }
+
+    private Boolean esUsernameRepetido(String username, Integer codigo){
+        boolean estadoCliente;
+        boolean estadoAdmin;
+        boolean estadoAdminTeatro;
+
+        if(codigo == null){
+            estadoCliente = clienteRepo.findByUsername(username).orElse(null) != null;
+            estadoAdmin = adminRepo.findByUsername(username).orElse(null) != null;
+            estadoAdminTeatro = administradorTeatroRepo.findByUsername(username).orElse(null) != null;
+        }else{
+            estadoCliente = clienteRepo.findByUsername(username).orElse(null) != null;
+            estadoAdmin = adminRepo.findByUsername(username).orElse(null) != null;
+            estadoAdminTeatro = administradorTeatroRepo.findByUsernameActualizar(username, codigo).orElse(null) != null;
+        }
+
+        if(estadoCliente || estadoAdmin || estadoAdminTeatro){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    private Boolean esCorreoRepetido(String correo, Integer codigo){
+        boolean estadoAdminTeatro;
+        boolean estadoAdmin;
+        boolean estadoCliente;
+
+        if(codigo == null){
+            estadoCliente = this.clienteRepo.findByCorreo(correo).orElse(null) != null;
+            estadoAdmin = adminRepo.findByCorreo(correo).orElse(null) != null;
+            estadoAdminTeatro = administradorTeatroRepo.findByCorreo(correo).orElse(null) != null;
+        }else{
+            estadoCliente = clienteRepo.findByCorreo(correo).orElse(null) != null;
+            estadoAdmin = adminRepo.findByCorreo(correo).orElse(null) != null;
+            estadoAdminTeatro = administradorTeatroRepo.findByCorreoActualizar(correo, codigo).orElse(null) != null;
+        }
+
+        if(estadoCliente || estadoAdmin || estadoAdminTeatro){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    private AdministradorTeatro actualizarAdminTeatroVerificado(AdministradorTeatro adminTeatro, String passwdEnc){
+        boolean isPasswd = passwordEncoder.matches(adminTeatro.getPassword(), passwdEnc);
+        if(!isPasswd){
+            adminTeatro.setPassword(passwordEncoder.encode(adminTeatro.getPassword()));
+            return administradorTeatroRepo.save(adminTeatro);
+        }else{
+            return administradorTeatroRepo.save(adminTeatro);
+        }
     }
 
     @Override
@@ -290,15 +433,25 @@ public class AdminServicioImpl implements AdminServicio  {
         Optional<AdministradorTeatro> administradorTeatro = administradorTeatroRepo.findById(codigo);
 
         if(administradorTeatro.isEmpty()){
-            throw new Exception("El combo no existe");
+            throw new Exception("El administrador teatro no existe");
         }
 
-        administradorTeatroRepo.delete(administradorTeatro.get());
+        try{
+            administradorTeatroRepo.delete(administradorTeatro.get());
+        }catch(Exception e){
+            throw new Exception("El administrador de teatro con id: " + codigo + ", no puede eliminarse. Se encuentra relacionada con uno o más teatros");
+        }
     }
 
     @Override
-    public List<AdministradorTeatro> listarAdministradoresTeatro() {
-        return administradorTeatroRepo.findAll();
+    public List<AdministradorTeatro> listarAdministradoresTeatro() throws Exception {
+        List<AdministradorTeatro> adminsTeatros = administradorTeatroRepo.findAll();
+
+        if(adminsTeatros.isEmpty()){
+            throw new Exception("No se han encontrado administradores de teatros");
+        }
+
+        return adminsTeatros;
     }
 
     @Override
@@ -306,7 +459,7 @@ public class AdminServicioImpl implements AdminServicio  {
         Optional<AdministradorTeatro> administradorTeatro = administradorTeatroRepo.findById(codigo);
 
         if(administradorTeatro.isEmpty()){
-            throw new Exception("El combo no existe");
+            throw new Exception("El administrador teatro no existe");
         }
 
         return administradorTeatro.get();

@@ -20,6 +20,15 @@ public interface ClienteRepo extends JpaRepository<Cliente,Integer> {
 
     Optional<Cliente> findByUsername(String username);
 
+    @Query("select c from Cliente c where c.codigo<>:codigo and c.correo = :correo")
+    Optional<Cliente> findByCorreoActualizar(String correo, Integer codigo);
+
+    @Query("select c from Cliente c where c.codigo<>:codigo and c.correo = :cedula")
+    Optional<Cliente> findByCedulaActualizar(String cedula, Integer codigo);
+
+    @Query("select c from Cliente c where c.codigo<>:codigo and c.correo = :username")
+    Optional<Cliente> findByUsernameActualizar(String username, Integer codigo);
+
     Cliente findByCorreoAndPassword(String email, String clave);
     @Query("select c from Cliente c where c.correo = :correo and c.password = :password")
     Optional<Cliente> comprobarAutenticacion(String correo, String password);

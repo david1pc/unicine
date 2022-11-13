@@ -21,17 +21,19 @@ public class Confiteria implements Serializable {
     private String nombre;
     private Double precio;
     private String descripcion;
-    private String imagen;
+    @OneToOne
+    private Imagen imagen;
     @ToString.Exclude
     @OneToMany(mappedBy = "confiteria")
     private List<CompraConfiteria>compraConfiterias;
 
     @Builder
-    public Confiteria(Integer codigo, String nombre, Double precio, String descripcion, List<CompraConfiteria> compraConfiterias) {
+    public Confiteria(Integer codigo, String nombre, Double precio, String descripcion, List<CompraConfiteria> compraConfiterias, Imagen imagen) {
         this.codigo = codigo;
         this.nombre = nombre;
         this.precio = precio;
         this.descripcion = descripcion;
         this.compraConfiterias = compraConfiterias;
+        this.imagen = imagen;
     }
 }

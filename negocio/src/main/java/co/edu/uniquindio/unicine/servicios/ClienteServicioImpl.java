@@ -2,14 +2,18 @@ package co.edu.uniquindio.unicine.servicios;
 
 import co.edu.uniquindio.unicine.entidades.*;
 import co.edu.uniquindio.unicine.repo.*;
+import co.edu.uniquindio.unicine.util.EncriptacionUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -23,6 +27,12 @@ public class ClienteServicioImpl implements ClienteServicio {
     private CompraRepo compraRepo;
 
     private CuponRepo cuponRepo;
+
+    @Autowired
+    CloudinaryServicio cloudinaryServicio;
+
+    @Autowired
+    ImagenRepo imagenRepo;
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -58,67 +68,94 @@ public class ClienteServicioImpl implements ClienteServicio {
     }
 
     @Override
-    public Auth login2(String correo, String password) throws Exception{
-        /*
-        Cliente cliente = null;
-        Administrador administrador = null;
-        AdministradorTeatro administradorTeatro = null;
-        logger.info("Realizando login...");
-
-        cliente = clienteRepo.comprobarAutenticacion(correo, password).orElse(null);
-
-        if(cliente == null){
-            administrador = adminRepo.comprobarAutenticacion(correo, password).orElse(null);
-        }
-
-        if(cliente == null && administrador == null){
-            administradorTeatro = adminTeatroRepo.comprobarAutenticacion(correo, password).orElse(null);
-        }
-
-        Auth auth = asignarAuth(cliente, administrador, administradorTeatro);
-        */
-
-
-        return null;
-    }
-/*
-    @Override
-    public Auth asignarAuth(Cliente cliente, Administrador administrador, AdministradorTeatro administradorTeatro) throws Exception {
-        Auth auth = new Auth();
-        if(cliente != null && cliente.getEstado() == true){
-            auth.setCodigo(cliente.getCodigo());
-            auth.setCorreo(cliente.getCorreo());
-            auth.setRol(Rol.CLIENTE);
-        }else if(administrador != null){
-            auth.setCodigo(administrador.getCodigo());
-            auth.setCorreo(administrador.getCorreo());
-            auth.setRol(Rol.ADMINISTRADOR);
-        }else if(administradorTeatro != null){
-            auth.setCodigo(administradorTeatro.getCodigo());
-            auth.setCorreo(administradorTeatro.getCorreo());
-            auth.setRol(Rol.ADMINISTRADOR_TEATRO);
-        }else{
-            throw new Exception("El correo o la contraseña son incorrectas");
-        }
-        return auth;
-    }
-*/
-    @Override
-    public Cliente registrarCliente(Cliente cliente) throws Exception {
-        Boolean correoExiste = esCorreoRepetido(cliente.getCorreo());
-        Boolean cedulaExiste = esCedulaRepetida(cliente.getCedula());
-
-        if(correoExiste || cedulaExiste){
-            throw new Exception("El cliente ya existe");
-        }
+    public Cliente registrarCliente(Cliente cliente, MultipartFile imagen) throws Exception {
+        verificarCredenciales(cliente.getCorreo(), cliente.getCedula(), cliente.getUsername());
 
         cliente.setPassword(passwordEncoder.encode(cliente.getPassword()));
+
+        if(imagen != null){
+            Imagen img = guardarImagenCloudinary(imagen);
+            cliente.setImagen(img);
+        }
 
         return clienteRepo.save(cliente);
     }
 
-    private Boolean esCorreoRepetido(String correo){
-        return clienteRepo.findByCorreo(correo).orElse(null) != null;
+    private Imagen guardarImagenCloudinary(MultipartFile imagen) throws IOException {
+        Map<String, String> respuesta = cloudinaryServicio.subirImagen(imagen, "clientes");
+        Imagen nueva_imagen = new Imagen((String)respuesta.get("original_filename"), (String)respuesta.get("url"), (String)respuesta.get("public_id"));
+        Imagen img = this.imagenRepo.save(nueva_imagen);
+        return img;
+    }
+
+    public void verificarCredenciales(String correo, String cedula, String username) throws Exception {
+        if(cedula != null){
+            Boolean cedulaExiste = esCedulaRepetida(cedula);
+
+            if(cedulaExiste){
+                throw new Exception("La cedula ya se encuentra en uso");
+            }
+        }
+
+        if(correo != null){
+            Boolean correoExiste = esCorreoRepetido(correo, null);
+
+            if(correoExiste){
+                throw new Exception("El correo ya se encuentra en uso");
+            }
+        }
+
+        if(username != null){
+            Boolean usernameExiste = esUsernameRepetido(username, null);
+
+            if(usernameExiste){
+                throw new Exception("El username ya se encuentra en uso");
+            }
+        }
+    }
+
+    private Boolean esUsernameRepetido(String username, Integer codigo) {
+        boolean estadoCliente;
+        boolean estadoAdmin;
+        boolean estadoAdminTeatro;
+
+        if(codigo == null){
+            estadoCliente = clienteRepo.findByUsername(username).orElse(null) != null;
+            estadoAdmin = adminRepo.findByUsername(username).orElse(null) != null;
+            estadoAdminTeatro = adminTeatroRepo.findByUsername(username).orElse(null) != null;
+        }else{
+            estadoCliente = clienteRepo.findByUsernameActualizar(username, codigo).orElse(null) != null;
+            estadoAdmin = adminRepo.findByUsername(username).orElse(null) != null;
+            estadoAdminTeatro = adminTeatroRepo.findByUsername(username).orElse(null) != null;
+        }
+
+        if(estadoCliente || estadoAdmin || estadoAdminTeatro){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    private Boolean esCorreoRepetido(String correo, Integer codigo){
+        boolean estadoAdminTeatro;
+        boolean estadoAdmin;
+        boolean estadoCliente;
+
+        if(codigo == null){
+            estadoCliente = clienteRepo.findByCorreo(correo).orElse(null) != null;
+            estadoAdmin = adminRepo.findByCorreo(correo).orElse(null) != null;
+            estadoAdminTeatro = adminTeatroRepo.findByCorreo(correo).orElse(null) != null;
+        }else{
+            estadoCliente = clienteRepo.findByCorreoActualizar(correo, codigo).orElse(null) != null;
+            estadoAdmin = adminRepo.findByCorreo(correo).orElse(null) != null;
+            estadoAdminTeatro = adminTeatroRepo.findByCorreo(correo).orElse(null) != null;
+        }
+
+        if(estadoCliente || estadoAdmin || estadoAdminTeatro){
+            return true;
+        }else{
+            return false;
+        }
     }
 
     private Boolean esCedulaRepetida(String cedula){
@@ -126,14 +163,63 @@ public class ClienteServicioImpl implements ClienteServicio {
     }
 
     @Override
-    public Cliente actualizarCliente(Cliente cliente) throws Exception {
+    public Cliente actualizarCliente(Cliente cliente, MultipartFile imagen) throws Exception {
         Optional<Cliente> guardado = clienteRepo.findById(cliente.getCodigo());
 
         if(guardado.isEmpty()){
             throw new Exception("El cliente no existe");
         }
 
-        return clienteRepo.save(cliente);
+        cliente.setCompras(guardado.get().getCompras());
+        cliente.setRol(guardado.get().getRol());
+        cliente.setCuponClientes(guardado.get().getCuponClientes());
+
+        if(imagen == null){
+            cliente.setImagen(guardado.get().getImagen());
+        }else{
+            eliminarImagenCloudinary(cliente, imagen);
+        }
+
+        verificarCredencialesActualizar(cliente.getCorreo(), cliente.getUsername(), cliente.getCodigo());
+
+        return actualizarClienteVerificado(cliente, guardado.get().getPassword());
+    }
+
+    private Cliente eliminarImagenCloudinary(Cliente cliente, MultipartFile imagen) throws IOException {
+        this.cloudinaryServicio.eliminarImagen(cliente.getImagen().getImagenId());
+        Map<String, String> respuesta = cloudinaryServicio.subirImagen(imagen, "clientes");
+        Imagen nueva_imagen = new Imagen((String)respuesta.get("original_filename"), (String)respuesta.get("url"), (String)respuesta.get("public_id"));
+        Imagen img = this.imagenRepo.save(nueva_imagen);
+        cliente.setImagen(img);
+        return cliente;
+    }
+
+    private void verificarCredencialesActualizar(String correo, String username, Integer codigo) throws Exception {
+        if(!correo.isEmpty()){
+            Boolean correoExiste = esCorreoRepetido(correo, codigo);
+
+            if(correoExiste){
+                throw new Exception("El correo ya se encuentra en uso");
+            }
+        }
+
+        if(!username.isEmpty()){
+            Boolean usernameExiste = esUsernameRepetido(username, codigo);
+
+            if(usernameExiste){
+                throw new Exception("El username ya se encuentra en uso");
+            }
+        }
+    }
+
+    private Cliente actualizarClienteVerificado(Cliente cliente, String passwdEnc){
+        boolean isPasswd = passwordEncoder.matches(cliente.getPassword(), passwdEnc);
+        if(!isPasswd){
+            cliente.setPassword(passwordEncoder.encode(cliente.getPassword()));
+            return clienteRepo.save(cliente);
+        }else{
+            return clienteRepo.save(cliente);
+        }
     }
 
     @Override
