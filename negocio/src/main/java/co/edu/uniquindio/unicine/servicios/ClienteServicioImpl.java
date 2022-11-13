@@ -2,7 +2,6 @@ package co.edu.uniquindio.unicine.servicios;
 
 import co.edu.uniquindio.unicine.entidades.*;
 import co.edu.uniquindio.unicine.repo.*;
-import co.edu.uniquindio.unicine.util.EncriptacionUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -192,6 +191,20 @@ public class ClienteServicioImpl implements ClienteServicio {
         Imagen img = this.imagenRepo.save(nueva_imagen);
         cliente.setImagen(img);
         return cliente;
+    }
+
+    public Boolean verificarEstadoCliente(String username, String rol){
+        if(rol.equals("ROLE_CLIENTE")){
+            Optional<Cliente> cliente = this.clienteRepo.findByUsername(username);
+            logger.info(username + " " + rol + " " + cliente.get().getEstado());
+            if(cliente.get().getEstado()){
+                return true;
+            }else{
+                return false;
+            }
+        }else{
+            return true;
+        }
     }
 
     private void verificarCredencialesActualizar(String correo, String username, Integer codigo) throws Exception {

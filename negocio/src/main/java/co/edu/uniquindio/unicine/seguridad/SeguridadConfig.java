@@ -58,6 +58,7 @@ public class SeguridadConfig {
         http.csrf().disable()
                 .cors(withDefaults())
                 .authorizeHttpRequests().antMatchers("/clientes/**", "/clientes/login/").permitAll()
+                .antMatchers(HttpMethod.POST, "/clientes/login/").permitAll()
                 .anyRequest().authenticated().and()
                 .httpBasic().and()
                 .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and()

@@ -134,11 +134,10 @@ public class AdminTeatroServicioImpl implements AdminTeatroServicio {
     // Teatros
     @Override
     public Teatro crearTeatro(Teatro teatro) throws Exception {
-        boolean teatroExiste = teatroExiste(teatro.getCodigo());
-
-        if (teatroExiste){
-            throw new Exception("El teatro ya existe");
+        if (teatro == null){
+            throw new Exception("El teatro no tiene datos");
         }
+
         return teatroRepo.save(teatro);
     }
 
@@ -150,9 +149,10 @@ public class AdminTeatroServicioImpl implements AdminTeatroServicio {
     public Teatro actualizarTeatro(Teatro teatro) throws Exception {
         boolean teatroExiste = teatroExiste(teatro.getCodigo());
 
-        if (!teatroExiste){
+        if (!teatroExiste || teatro == null){
             throw new Exception("El teatro no existe");
         }
+
         return teatroRepo.save(teatro);
     }
 
@@ -164,7 +164,12 @@ public class AdminTeatroServicioImpl implements AdminTeatroServicio {
             throw new Exception("El teatro no existe");
         }
 
-        teatroRepo.delete(teatro.get());
+        try{
+            teatroRepo.delete(teatro.get());
+        }catch(Exception e){
+            throw new Exception("El teatro con id: " + codigo + ", no puede eliminarse. Se encuentra relacionada con una o mas salas");
+        }
+
     }
 
     @Override

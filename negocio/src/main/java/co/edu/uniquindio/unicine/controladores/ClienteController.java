@@ -108,6 +108,9 @@ public class ClienteController {
         }
 
         try {
+            if(imagen.isEmpty()){
+                imagen = null;
+            }
             Cliente nuevo = this.clienteServicio.registrarCliente(cliente_nuevo, imagen);
             String username_enc = encriptarUsername(nuevo.getUsername());
             String route = this.devRoute.concat("auth/activacion/"+username_enc);
@@ -121,28 +124,6 @@ public class ClienteController {
         }
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
-    }
-
-    @PostMapping("/registro-data/")
-    @ResponseStatus(code = HttpStatus.CREATED)
-    public ResponseEntity<?> registrarCliente(@RequestBody Cliente cliente) {
-        Cliente clienteNuevo = null;
-
-        Map<String, Object> response = new HashMap<>();
-
-        try {
-            clienteNuevo = this.clienteServicio.registrarCliente(cliente, null);
-            String username_enc = encriptarUsername(clienteNuevo.getUsername());
-            String route = this.devRoute.concat("auth/activacion/"+username_enc);
-            this.emailServicio.enviarEmail("Registro de cuenta en Unicine", route, clienteNuevo.getCorreo());
-            response.put("cliente", clienteNuevo);
-            response.put("mensaje", "El cliente " + clienteNuevo.getPrimerNombre() + ", ha sido registrado con exito!. Se le ha enviado a su correo un enlace para activar la cuenta");
-            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
-        }catch(Exception e) {
-            response.put("mensaje", "Error al registrarse en unicine");
-            response.put("error", e.getMessage());
-            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
-        }
     }
 
     private String encriptarUsername(String username){
@@ -251,9 +232,9 @@ public class ClienteController {
             String username = EncriptacionUtil.decrypt(str);
             Optional<Cliente> cliente = this.clienteRepo.findByUsername(username);
             cliente.get().setEstado(true);
-            this.clienteServicio.actualizarCliente(cliente.get(), null);
+            this.clienteRepo.save(cliente.get());
             response.put("mensaje", "Su cuenta ha sido activada con exito");
-            response.put("estado", cliente.get().getEstado());
+            response.put("estado", true);
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
         }catch(Exception e){
             response.put("mensaje", "Error en la activacion de la cuenta");
@@ -269,20 +250,18 @@ public class ClienteController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            autenticarUsuario(login.getUsername(), login.getPassword());
             final UserDetails userDetails = jwtUserDetailsServicio.loadUserByUsername(login.getUsername());
             String rol_user = "";
             for(GrantedAuthority e: userDetails.getAuthorities()){
                 rol_user = e.getAuthority();
             }
-            if(rol_user.equals("ROLE_CLIENTE")){
-                Optional<Cliente> cliente = this.clienteRepo.findByUsername(login.getUsername());
-                if(!cliente.get().getEstado()){
-                    response.put("mensaje", "Error al iniciar sesion");
-                    response.put("error", "El cliente esta inactivo. Active la cuenta abriendo el enlace enviado a su correo");
-                    return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_ACCEPTABLE);
-                }
+            Boolean estadoCliente = this.clienteServicio.verificarEstadoCliente(userDetails.getUsername(),rol_user);
+            if(!estadoCliente){
+                response.put("mensaje", "Error al iniciar sesion");
+                response.put("error", "El cliente esta inactivo. Active la cuenta abriendo el enlace enviado a su correo");
+                return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_ACCEPTABLE);
             }
+            autenticarUsuario(login.getUsername(), login.getPassword());
             final String token = jwtTokenUtil.generateToken(userDetails);
             LoginRespuesta loginRespuesta = new LoginRespuesta(userDetails.getUsername(), EncriptacionUtil.encrypt(token), rol_user);
             response.put("login", loginRespuesta);
