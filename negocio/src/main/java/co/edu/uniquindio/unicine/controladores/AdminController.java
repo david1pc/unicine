@@ -48,7 +48,7 @@ public class AdminController {
     @Autowired
     ImagenRepo imagenRepo;
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ADMIN_TEATRO')")
     @GetMapping("/peliculas/")
     public ResponseEntity<?> obtenerPeliculas(){
         Map<String, Object> response = new HashMap<>();

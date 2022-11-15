@@ -20,12 +20,11 @@ public class Sala implements Serializable {
     private Integer codigo;
     private String nombre;
     @ManyToOne
-    @JsonIgnore
     private Teatro teatro;
     @ManyToOne
-    @JsonIgnore
     private DistribucionSillas distribucionSillas;
     @ToString.Exclude
+    @JsonIgnore
     @OneToMany(mappedBy = "sala")
     private List<Funcion>funciones;
 }

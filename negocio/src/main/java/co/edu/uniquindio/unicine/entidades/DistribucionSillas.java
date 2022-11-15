@@ -1,5 +1,6 @@
 package co.edu.uniquindio.unicine.entidades;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -22,6 +23,7 @@ public class DistribucionSillas implements Serializable {
     private Integer filas;
     private Integer columnas;
     @ToString.Exclude
+    @JsonIgnore
     @OneToMany(mappedBy = "distribucionSillas")
     private List<Sala>salas;
 }

@@ -1,8 +1,6 @@
 package co.edu.uniquindio.unicine.servicios;
 
-import co.edu.uniquindio.unicine.entidades.Funcion;
-import co.edu.uniquindio.unicine.entidades.Horario;
-import co.edu.uniquindio.unicine.entidades.Teatro;
+import co.edu.uniquindio.unicine.entidades.*;
 
 import java.util.List;
 
@@ -30,4 +28,20 @@ public interface AdminTeatroServicio {
     List<Teatro> listarTeatros ();
 
     Teatro obtenerTeatro(Integer codigo)throws Exception;
+
+    List<Sala> listarSalas() throws Exception;
+
+    Sala crearSala(Sala sala) throws Exception;
+
+    Sala actualizarSala(Sala sala) throws Exception;
+
+    void eliminarSala(Integer codigo)throws Exception;
+
+    List<DistribucionSillas> listarDistribucionSillas() throws Exception;
+
+    DistribucionSillas crearDistribucionSillas(DistribucionSillas distribucionSillas) throws Exception;
+
+    DistribucionSillas actualizarDistribucionSillas(DistribucionSillas distribucionSillas) throws Exception;
+
+    void eliminarDistribucionSillas(Integer codigo)throws Exception;
 }

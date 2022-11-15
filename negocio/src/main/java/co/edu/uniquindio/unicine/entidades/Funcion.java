@@ -20,13 +20,10 @@ public class Funcion implements Serializable {
     private Integer codigo;
     private Double precio;
     @ManyToOne
-    @JsonIgnore
     private Sala sala;
     @ManyToOne
-    @JsonIgnore
     private Horario horario;
     @ManyToOne
-    @JsonIgnore
     private Pelicula pelicula;
     @ToString.Exclude
     @OneToMany(mappedBy = "funcion")
