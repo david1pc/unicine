@@ -274,11 +274,17 @@ public class AdminServicioImpl implements AdminServicio  {
     // combos
 
     @Override
-    public Combo crearCombo(Combo combo) throws Exception {
+    public Combo crearCombo(Combo combo, MultipartFile imagen) throws Exception {
         boolean comboExiste = comboExiste(combo.getCodigo());
         if (comboExiste){
             throw new Exception("El combo ya existe");
         }
+
+        if(imagen != null){
+            Imagen img = cloudinaryServicio.guardarImagen(imagen, "combos");
+            combo.setImagen(img);
+        }
+
         return comboRepo.save(combo);
     }
 
@@ -287,11 +293,22 @@ public class AdminServicioImpl implements AdminServicio  {
     }
 
     @Override
-    public Combo actualizarCombo(Combo combo) throws Exception {
+    public Combo actualizarCombo(Combo combo, MultipartFile imagen) throws Exception {
         boolean comboExiste = comboExiste(combo.getCodigo());
         if (!comboExiste){
             throw new Exception("El combo no existe");
         }
+
+        if(imagen != null){
+            Imagen img = new Imagen();
+            if(combo.getImagen() == null){
+                img = this.cloudinaryServicio.actualizarImagen(imagen, null,"combos");
+            }else{
+                img = this.cloudinaryServicio.actualizarImagen(imagen, combo.getImagen(),"combos");
+            }
+            combo.setImagen(img);
+        }
+
         return comboRepo.save(combo);
     }
 

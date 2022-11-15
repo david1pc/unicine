@@ -36,8 +36,8 @@ public interface AdminServicio {
     Confiteria obtenerConfiteria (Integer codigo)throws Exception;
 
     // Gestionar Combos
-    Combo crearCombo (Combo combo)throws Exception;
-    Combo actualizarCombo (Combo combo)throws Exception;
+    Combo crearCombo (Combo combo, MultipartFile imagen)throws Exception;
+    Combo actualizarCombo (Combo combo, MultipartFile imagen)throws Exception;
     void eliminarCombo (Integer codigo)throws Exception;
     List <Combo> listarCombos ();
     Combo obtenerCombo (Integer codigo)throws Exception;

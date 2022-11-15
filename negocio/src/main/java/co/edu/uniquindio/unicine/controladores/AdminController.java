@@ -241,7 +241,7 @@ public class AdminController {
     }
 
     @GetMapping("/teatro")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ADMIN_TEATRO')")
     public ResponseEntity<?> obtener_admins_teatro(){
         Map<String, Object> response = new HashMap<>();
 
@@ -390,7 +390,7 @@ public class AdminController {
             response.put("confiterias", confiterias);
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
         }catch(Exception e){
-            response.put("mensaje", "Error al obtener los administradores de teatro");
+            response.put("mensaje", "Error al obtener las confiterias");
             response.put("error", e.getMessage());
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
         }
@@ -420,5 +420,108 @@ public class AdminController {
         }
 
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping(value = "/combos/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public ResponseEntity<?> crearCombo(@RequestParam(name = "imagen") @Size(min = 1) MultipartFile imagen, @RequestPart(name = "combo") String combo){
+        Map<String, Object> response = new HashMap<>();
+        Combo combo_nuevo = null;
+
+        try {
+            combo_nuevo = new ObjectMapper().readValue(combo, Combo.class);
+        } catch (JsonProcessingException e) {
+            response.put("mensaje", "Error al crear la confiteria");
+            response.put("error", "No se reconocen los datos de la confiteria");
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_ACCEPTABLE);
+        }
+
+        try {
+            if(imagen.isEmpty()){
+                imagen = null;
+            }
+            Combo nuevo = this.adminServicio.crearCombo(combo_nuevo, imagen);
+            response.put("combo", nuevo);
+            response.put("mensaje", "Se ha creado el combo con exito!");
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
+        } catch (Exception e) {
+            response.put("mensaje", "Error al crear el combo");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping(value = "/combos/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public ResponseEntity<?> actualizarCombo(@RequestParam(name = "imagen") @Size(min = 1) MultipartFile imagen, @RequestPart(name = "combo") String combo){
+        Map<String, Object> response = new HashMap<>();
+        Combo combo_update = null;
+
+        try {
+            combo_update = new ObjectMapper().readValue(combo, Combo.class);
+        } catch (JsonProcessingException e) {
+            response.put("mensaje", "Error al actualizar el combo");
+            response.put("error", "No se reconocen los datos del combo");
+        }
+
+        logger.info("Actualizando combo... " + combo_update);
+
+        try {
+            if(imagen.isEmpty()){
+                imagen = null;
+            }
+            Combo confiteria_nueva = this.adminServicio.actualizarCombo(combo_update, imagen);
+            response.put("combo", confiteria_nueva);
+            response.put("mensaje", "Se ha actualizado el combo con exito!");
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
+        } catch (Exception e) {
+            response.put("mensaje", "Error al actualizar el combo");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/combos/eliminar")
+    @ResponseStatus(code = HttpStatus.OK)
+    public ResponseEntity<?> eliminarCombo(@RequestBody Integer combos_ids []){
+        Map<String, Object> response = new HashMap<>();
+        logger.info("Eliminando combos_ids... " + combos_ids);
+
+        for (int i = 0; i < combos_ids.length; i++){
+            Integer id = combos_ids[i].intValue();
+            try {
+                this.adminServicio.eliminarCombo(id);
+                response.put("mensaje", "El combo se ha eliminado con exito!");
+            } catch (Exception e) {
+                response.put("mensaje", "Error al eliminar el combo con id: " + id);
+                response.put("error", e.getMessage());
+                return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+            }
+        }
+
+        if(combos_ids.length > 1){
+            response.put("mensaje", "Se han eliminado los combos con exito");
+        }
+
+        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/combos")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> obtener_combos(){
+        Map<String, Object> response = new HashMap<>();
+
+        try{
+            List<Combo> combos = this.adminServicio.listarCombos();
+            response.put("combos", combos);
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+        }catch(Exception e){
+            response.put("mensaje", "Error al obtener los combos");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
     }
 }

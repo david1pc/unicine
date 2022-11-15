@@ -169,7 +169,6 @@ public class AdminTeatroServicioImpl implements AdminTeatroServicio {
         }catch(Exception e){
             throw new Exception("El teatro con id: " + codigo + ", no puede eliminarse. Se encuentra relacionada con una o mas salas");
         }
-
     }
 
     @Override

@@ -1,5 +1,6 @@
 package co.edu.uniquindio.unicine.entidades;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -20,6 +21,7 @@ public class Ciudad implements Serializable {
     private Integer codigo;
     private String nombre;
     @ToString.Exclude
+    @JsonIgnore
     @OneToMany(mappedBy = "ciudad")
     private List<Teatro>teatros;
 

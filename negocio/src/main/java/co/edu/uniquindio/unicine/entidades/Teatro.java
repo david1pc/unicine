@@ -21,10 +21,8 @@ public class Teatro implements Serializable {
     private String direccion;
     private String telefono;
     @ManyToOne
-    @JsonIgnore
     private AdministradorTeatro administradorTeatro;
     @ManyToOne
-    @JsonIgnore
     private Ciudad ciudad;
     @ToString.Exclude
     @OneToMany(mappedBy = "teatro")

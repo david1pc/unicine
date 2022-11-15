@@ -222,7 +222,7 @@ public class AdminServicioTest {
     public void crearComboTest(){
         Combo combo = Combo.builder().codigo(20).nombre("Tostacos con gaseosa").precio(30000.0).descripcion("Los tostacos saben rico y con gaseosa más").build();
         try {
-            Combo comboNuevo = adminServicio.crearCombo(combo);
+            Combo comboNuevo = adminServicio.crearCombo(combo, null);
             Assertions.assertNotNull(comboNuevo);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -235,7 +235,7 @@ public class AdminServicioTest {
         try {
             Combo combo = adminServicio.obtenerCombo(1);
             combo.setDescripcion("yumii");
-            Combo comboNuevo = adminServicio.actualizarCombo(combo);
+            Combo comboNuevo = adminServicio.actualizarCombo(combo, null);
             Assertions.assertEquals("yumii", comboNuevo.getDescripcion());
         } catch (Exception e) {
             throw new RuntimeException(e);
