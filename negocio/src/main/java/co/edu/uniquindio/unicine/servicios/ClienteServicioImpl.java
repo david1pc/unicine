@@ -11,21 +11,28 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class ClienteServicioImpl implements ClienteServicio {
     protected final Log logger = LogFactory.getLog(this.getClass());
     private ClienteRepo clienteRepo;
-
     private AdministradorRepo adminRepo;
-
     private AdministradorTeatroRepo adminTeatroRepo;
     private CompraRepo compraRepo;
-
     private CuponRepo cuponRepo;
+    private FuncionRepo funcionRepo;
+    private CiudadRepo ciudadRepo;
+    private TeatroRepo teatroRepo;
+    private CompraConfiteriaRepo compraConfiteriaRepo;
+    private CompraComboRepo compraComboRepo;
+    private EntradaRepo entradaRepo;
+    private CuponClienteRepo cuponClienteRepo;
+    private PeliculaRepo peliculaRepo;
+
+
+    @Autowired
+    AdminTeatroServicio adminTeatroServicio;
 
     @Autowired
     CloudinaryServicio cloudinaryServicio;
@@ -36,12 +43,20 @@ public class ClienteServicioImpl implements ClienteServicio {
     @Autowired
     PasswordEncoder passwordEncoder;
 
-    public ClienteServicioImpl(ClienteRepo clienteRepo, CompraRepo compraRepo, CuponRepo cuponRepo, AdministradorTeatroRepo adminTeatroRepo, AdministradorRepo adminRepo){
+    public ClienteServicioImpl(ClienteRepo clienteRepo, CompraRepo compraRepo, CuponRepo cuponRepo, AdministradorTeatroRepo adminTeatroRepo, AdministradorRepo adminRepo, FuncionRepo funcionRepo, TeatroRepo teatroRepo, CiudadRepo ciudadRepo, CompraComboRepo compraComboRepo, CompraConfiteriaRepo compraConfiteriaRepo, EntradaRepo entradaRepo, CuponClienteRepo cuponClienteRepo, PeliculaRepo peliculaRepo){
         this.clienteRepo = clienteRepo;
         this.compraRepo = compraRepo;
         this.cuponRepo = cuponRepo;
         this.adminTeatroRepo = adminTeatroRepo;
         this.adminRepo = adminRepo;
+        this.funcionRepo = funcionRepo;
+        this.ciudadRepo = ciudadRepo;
+        this.teatroRepo = teatroRepo;
+        this.compraComboRepo = compraComboRepo;
+        this.compraConfiteriaRepo = compraConfiteriaRepo;
+        this.entradaRepo = entradaRepo;
+        this.cuponClienteRepo = cuponClienteRepo;
+        this.peliculaRepo = peliculaRepo;
     }
 
     @Override
@@ -164,23 +179,24 @@ public class ClienteServicioImpl implements ClienteServicio {
     @Override
     public Cliente actualizarCliente(Cliente cliente, MultipartFile imagen) throws Exception {
         Optional<Cliente> guardado = clienteRepo.findById(cliente.getCodigo());
-
         if(guardado.isEmpty()){
             throw new Exception("El cliente no existe");
         }
+        verificarCredencialesActualizar(cliente.getCorreo(), cliente.getUsername(), cliente.getCodigo());
 
         cliente.setCompras(guardado.get().getCompras());
         cliente.setRol(guardado.get().getRol());
         cliente.setCuponClientes(guardado.get().getCuponClientes());
 
-        if(imagen == null){
-            cliente.setImagen(guardado.get().getImagen());
-        }else{
-            eliminarImagenCloudinary(cliente, imagen);
+        if(imagen != null){
+            Imagen img = new Imagen();
+            if(cliente.getImagen() == null){
+                img = this.cloudinaryServicio.actualizarImagen(imagen, null,"clientes");
+            }else{
+                img = this.cloudinaryServicio.actualizarImagen(imagen, cliente.getImagen(),"clientes");
+            }
+            cliente.setImagen(img);
         }
-
-        verificarCredencialesActualizar(cliente.getCorreo(), cliente.getUsername(), cliente.getCodigo());
-
         return actualizarClienteVerificado(cliente, guardado.get().getPassword());
     }
 
@@ -226,7 +242,7 @@ public class ClienteServicioImpl implements ClienteServicio {
     }
 
     private Cliente actualizarClienteVerificado(Cliente cliente, String passwdEnc){
-        boolean isPasswd = passwordEncoder.matches(cliente.getPassword(), passwdEnc);
+        boolean isPasswd = cliente.getPassword().equals(passwdEnc);
         if(!isPasswd){
             cliente.setPassword(passwordEncoder.encode(cliente.getPassword()));
             return clienteRepo.save(cliente);
@@ -268,21 +284,87 @@ public class ClienteServicioImpl implements ClienteServicio {
             throw new Exception("No se ha completado la compra");
         }
 
-        String correo = compra.getCliente().getCorreo();
-        String passwd = compra.getCliente().getPassword();
+        Compra compra_actualizada = null;
 
-        Cliente cliente = login(correo, passwd);
-
-        if(cliente == null){
-            throw new Exception("El cliente no existe");
+        try{
+            compra_actualizada = calcularCostoTotalVenta(compra);
+        }catch(Exception e){
+            throw new Exception(e.getMessage());
         }
 
-        if(!cliente.getEstado()){
-            throw new Exception("El cliente no está activo");
+        try{
+            DistribucionSillas dist = this.adminTeatroServicio.actualizarDistribucionSillas(compra.getFuncion().getSala().getDistribucionSillas());
+        }catch(Exception e){
+            throw new Exception(e.getMessage());
         }
 
-        return compraRepo.save(compra);
+        return compraRepo.save(compra_actualizada);
     }
+
+    private Compra calcularCostoTotalVenta(Compra compra) throws Exception {
+       try{
+           this.adminTeatroServicio.obtenerFuncion(compra.getCodigo());
+       }catch(Exception e){
+           throw new Exception(e.getMessage());
+       }
+
+       Double precioTotalEntradas = 0.0;
+       List<Entrada> entradas = new ArrayList<>();
+
+       if(compra.getEntradas() != null && !compra.getEntradas().isEmpty()){
+           for(Entrada entrada : compra.getEntradas()){
+               precioTotalEntradas+=entrada.getPrecio();
+               Entrada entradaNew = crearEntrada(entrada);
+               entradas.add(entradaNew);
+           }
+           compra.setEntradas(entradas);
+       }
+
+       Double precioCombos = 0.0;
+       List<CompraCombo> comprasCombos = new ArrayList<>();
+
+       if(!compra.getCompraCombos().isEmpty() && compra.getCompraCombos() != null){
+           for(CompraCombo compraCombo : compra.getCompraCombos()){
+                precioCombos+=compraCombo.getPrecio() * compraCombo.getCantidad();
+               CompraCombo compraCon = crearCompraCombo(compraCombo);
+               comprasCombos.add(compraCon);
+           }
+           compra.setCompraCombos(comprasCombos);
+       }
+
+       Double precioConfiteria = 0.0;
+       List<CompraConfiteria> comprasConfiterias = new ArrayList<>();
+
+       if(!compra.getCompraConfiterias().isEmpty() && compra.getCompraConfiterias() != null){
+           for(CompraConfiteria compraConfiteria : compra.getCompraConfiterias()){
+               precioConfiteria += compraConfiteria.getPrecio() * compraConfiteria.getCantidad();
+               CompraConfiteria compraConf = crearCompraConfiteria(compraConfiteria);
+               comprasConfiterias.add(compraConf);
+           }
+           compra.setCompraConfiterias(comprasConfiterias);
+       }
+
+       Optional<Cupon> cupon = null;
+
+       if(compra.getCuponCliente() != null){
+           cupon = redimirCupon(compra.getCuponCliente().getCupon().getCodigo());
+           CuponCliente cuponCli = crearCuponCliente(compra.getCuponCliente());
+           compra.setCuponCliente(cuponCli);
+       }
+
+
+       Double precio = (precioTotalEntradas + precioCombos + precioConfiteria);
+       Double valor_total = precio;
+
+       if(cupon != null && !cupon.isEmpty()){
+           valor_total = valor_total - (valor_total * cupon.get().getDescuento());
+       }
+
+       compra.setValor_total(valor_total);
+
+       return compra;
+    }
+
 
     @Override
     public Optional<Cupon> redimirCupon(Integer codigoCupon) throws Exception {
@@ -300,4 +382,105 @@ public class ClienteServicioImpl implements ClienteServicio {
 
         return cupon;
     }
+
+    @Override
+    public List<Funcion> obtener_funciones(Integer idCiudad, Integer idTeatro) throws Exception {
+        if(idCiudad == null || idTeatro == null){
+            throw new Exception("El id de la ciudad o el teatro no puede estar vacio");
+        }
+
+        return this.funcionRepo.listarFuncionesPorCiudadTeatro(idCiudad, idTeatro);
+    }
+
+    @Override
+    public List<Funcion> obtener_funciones_ciudad(Integer idCiudad) throws Exception {
+        if(idCiudad == null){
+            throw new Exception("El id de la ciudad no puede estar vacio");
+        }
+
+        return this.funcionRepo.listarFuncionesPorCiudad(idCiudad);
+    }
+
+    @Override
+    public List<Funcion> obtener_funciones_pelicula(Integer idCiudad, Integer idPelicula, LocalDate fecha, String dia) throws Exception {
+        if(idCiudad == null || idPelicula == null){
+            throw new Exception("El id de la ciudad o pelicula, no puede estar vacio");
+        }
+
+        List<Funcion> funciones = this.funcionRepo.listarFuncionesPorPeliculaCiudad(idCiudad, idPelicula, fecha);
+        List<Funcion> funcionesDisponibles = new ArrayList<>();
+        Boolean esFuncionDisponible = false;
+
+        for(Funcion funcion : funciones){
+            String[] dias = funcion.getHorario().getDia().split(" ");
+            for(String diaS : dias){
+                if(diaS.equals(dia)){
+                    esFuncionDisponible = true;
+                    break;
+                }else{
+                    esFuncionDisponible = false;
+                }
+            }
+            if(esFuncionDisponible){
+                funcionesDisponibles.add(funcion);
+            }
+        }
+
+        return funcionesDisponibles;
+    }
+
+    @Override
+    public List<Pelicula> obtener_peliculas(Integer idCiudad, Integer idPelicula) throws Exception {
+        if(idCiudad == null || idPelicula == null){
+            throw new Exception("El id de la ciudad o pelicula, no puede estar vacio");
+        }
+
+        return this.peliculaRepo.obtener_peliculas(idCiudad, idPelicula);
+    }
+
+    @Override
+    public List<Pelicula> obtener_peliculas_ciudad(Integer idCiudad) throws Exception {
+        if(idCiudad == null){
+            throw new Exception("El id de la ciudad no puede estar vacio");
+        }
+
+        return this.peliculaRepo.obtener_peliculas_ciudad(idCiudad);
+    }
+
+    @Override
+    public CompraConfiteria crearCompraConfiteria(CompraConfiteria compraConfiteria) throws Exception {
+        try{
+            return this.compraConfiteriaRepo.save(compraConfiteria);
+        }catch(Exception e){
+            throw new Exception("No se pudo crear la compra de la confiteria");
+        }
+    }
+
+    @Override
+    public CompraCombo crearCompraCombo(CompraCombo compraCombo) throws Exception {
+        try{
+            return this.compraComboRepo.save(compraCombo);
+        }catch(Exception e){
+            throw new Exception("No se pudo crear la compra del combo");
+        }
+    }
+
+    @Override
+    public Entrada crearEntrada(Entrada entrada) throws Exception {
+        try{
+            return this.entradaRepo.save(entrada);
+        }catch(Exception e){
+            throw new Exception("No se pudo crear la entrada");
+        }
+    }
+
+    @Override
+    public CuponCliente crearCuponCliente(CuponCliente cuponCliente) throws Exception {
+        try{
+            return this.cuponClienteRepo.save(cuponCliente);
+        }catch(Exception e){
+            throw new Exception("No se pudo crear el cupon cliente");
+        }
+    }
+
 }

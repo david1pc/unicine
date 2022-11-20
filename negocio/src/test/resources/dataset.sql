@@ -59,8 +59,8 @@ insert into teatro(codigo, direccion, telefono, administrador_teatro_codigo, ciu
 insert into teatro(codigo, direccion, telefono, administrador_teatro_codigo, ciudad_codigo) values(4, "CL 10#5-8", "7116723", 4, 4);
 insert into teatro(codigo, direccion, telefono, administrador_teatro_codigo, ciudad_codigo) values(5, "CI 11#5-10", "7428934", 5, 5);
 
-insert into distribucion_sillas(codigo, esquema, total_sillas, filas, columnas) values(1, "V1", 140, 12, 12);
-insert into distribucion_sillas(codigo, esquema, total_sillas, filas, columnas) values(2, "V2", 115, 11, 11);
+insert into distribucion_sillas(codigo, esquema, total_sillas, filas, columnas) values(1, "-,-,-,-,-,-,-,-,-,-,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,-,-,-,-,*,*,*,*,*,*,-,-,-,-,*,*,*,*,*,*,*,*,*,*,*,*,*,-,*,*,*,*,*,*,*,*,-,*,-,*,*,*,*,*,*,-,*,*,*,-,-,-,-,-,-,*,*", 140, 12, 12);
+insert into distribucion_sillas(codigo, esquema, total_sillas, filas, columnas) values(2, "*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,*,-,-,*,*,*,*,*,-,-,-,-,-,-,-,-,-,-,-", 115, 11, 11);
 insert into distribucion_sillas(codigo, esquema, total_sillas, filas, columnas) values(3, "V1", 81, 9, 9);
 insert into distribucion_sillas(codigo, esquema, total_sillas, filas, columnas) values(4, "V2", 108, 9, 12);
 insert into distribucion_sillas(codigo, esquema, total_sillas, filas, columnas) values(5, "V1", 130, 9, 15);

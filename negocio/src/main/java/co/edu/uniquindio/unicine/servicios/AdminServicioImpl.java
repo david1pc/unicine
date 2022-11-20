@@ -28,16 +28,12 @@ public class AdminServicioImpl implements AdminServicio  {
      private ClienteRepo clienteRepo;
      private AdministradorRepo adminRepo;
      private ImagenRepo imagenRepo;
+
      @Autowired
      CloudinaryServicio cloudinaryServicio;
-
-
-    protected final Log logger = LogFactory.getLog(this.getClass());
-
-    @Autowired
-    PasswordEncoder passwordEncoder;
-
-     private ClienteServicio clienteServicio;
+     protected final Log logger = LogFactory.getLog(this.getClass());
+     @Autowired
+     PasswordEncoder passwordEncoder;
 
     public AdminServicioImpl(CiudadRepo ciudadRepo, PeliculaRepo peliculaRepo, CuponRepo cuponRepo, ConfiteriaRepo confiteriaRepo, ComboRepo comboRepo, AdministradorTeatroRepo administradorTeatroRepo, ClienteServicio clienteServicio, ClienteRepo clienteRepo, AdministradorRepo administradorRepo, ImagenRepo imagenRepo) {
         this.ciudadRepo = ciudadRepo;
@@ -46,10 +42,10 @@ public class AdminServicioImpl implements AdminServicio  {
         this.confiteriaRepo = confiteriaRepo;
         this.comboRepo = comboRepo;
         this.administradorTeatroRepo = administradorTeatroRepo;
-        this.clienteServicio = clienteServicio;
         this.clienteRepo = clienteRepo;
         this.adminRepo = administradorRepo;
         this.imagenRepo = imagenRepo;
+
     }
     // gestionar ciudades
 
@@ -436,7 +432,7 @@ public class AdminServicioImpl implements AdminServicio  {
     }
 
     private AdministradorTeatro actualizarAdminTeatroVerificado(AdministradorTeatro adminTeatro, String passwdEnc){
-        boolean isPasswd = passwordEncoder.matches(adminTeatro.getPassword(), passwdEnc);
+        boolean isPasswd = adminTeatro.getPassword().equals(passwdEnc);
         if(!isPasswd){
             adminTeatro.setPassword(passwordEncoder.encode(adminTeatro.getPassword()));
             return administradorTeatroRepo.save(adminTeatro);
@@ -481,4 +477,12 @@ public class AdminServicioImpl implements AdminServicio  {
 
         return administradorTeatro.get();
     }
+
+    @Override
+    public List<Ciudad> obtener_ciudades() {
+        return this.ciudadRepo.findAll();
+    }
+
+
+
 }

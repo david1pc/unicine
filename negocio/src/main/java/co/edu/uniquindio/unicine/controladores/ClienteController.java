@@ -54,6 +54,10 @@ public class ClienteController {
     AdminServicio adminServicio;
 
     @Autowired
+    AdminTeatroServicio adminTeatroServicio;
+
+
+    @Autowired
     ClienteRepo clienteRepo;
 
     @Value("${dev.route}")
@@ -69,28 +73,151 @@ public class ClienteController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> obtener_cliente(@PathVariable Long id) {
-        Cliente cliente = null;
+    @PreAuthorize("hasRole('CLIENTE')")
+    @GetMapping("/{username}")
+    public ResponseEntity<?> obtener_cliente(@PathVariable String username) {
+        Optional<Cliente> cliente = null;
         Map<String, Object> response = new HashMap<>();
         try {
-            cliente = this.clienteServicio.obtenerCliente(id.intValue());
+            cliente = this.clienteRepo.findByUsername(username);
+            response.put("cliente", cliente);
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
         }catch(Exception e) {
             response.put("mensaje", "Error al realizar la consulta a la base de datos");
+            response.put("error", "No se pudo encontrar al cliente con username: " + username);
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/funciones/{idCiudad}/{idTeatro}")
+    public ResponseEntity<?> buscarFunciones(@PathVariable Long idCiudad, @PathVariable Long idTeatro) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            List<Funcion> funciones = this.clienteServicio.obtener_funciones(idCiudad.intValue(), idTeatro.intValue());
+            response.put("funciones", funciones);
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+        }catch(Exception e) {
+            response.put("mensaje", "Error al encontrar las funciones");
             response.put("error", e.getMessage());
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
         }
+    }
 
-        if(cliente == null) {
-            response.put("mensaje", "El cliente con el ID ".concat(id.toString().concat(" no éxiste en la base de datos!")));
-            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    @GetMapping("/peliculas/{idCiudad}/{idTeatro}")
+    public ResponseEntity<?> buscarPeliculas(@PathVariable Long idCiudad, @PathVariable Long idTeatro) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            List<Pelicula> peliculas = this.clienteServicio.obtener_peliculas(idCiudad.intValue(), idTeatro.intValue());
+            response.put("peliculas", peliculas);
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+        }catch(Exception e) {
+            response.put("mensaje", "Error al encontrar las peliculas");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
         }
+    }
 
-        response.put("cliente", cliente);
+    @GetMapping("/peliculas/{idCiudad}")
+    public ResponseEntity<?> buscarPeliculasCiudad(@PathVariable Long idCiudad) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            List<Pelicula> peliculas = this.clienteServicio.obtener_peliculas_ciudad(idCiudad.intValue());
+            response.put("peliculas", peliculas);
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+        }catch(Exception e) {
+            response.put("mensaje", "Error al encontrar las peliculas");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
+    }
 
-        System.out.println(cliente);
+    @PostMapping("/funcion/{idCiudad}/{idPelicula}")
+    public ResponseEntity<?> buscarFuncionesPelicula(@PathVariable Long idCiudad, @PathVariable Long idPelicula, @RequestBody Horario horario) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            logger.info("Horario" + horario);
+            List<Funcion> funciones = this.clienteServicio.obtener_funciones_pelicula(idCiudad.intValue(), idPelicula.intValue(), horario.getFecha_inicio(), horario.getDia());
+            response.put("funciones", funciones);
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+        }catch(Exception e) {
+            response.put("mensaje", "Error al encontrar las funciones");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
+    }
 
-        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+    @GetMapping("/funciones/{idCiudad}")
+    public ResponseEntity<?> buscarFuncionesCiudad(@PathVariable Long idCiudad) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            List<Funcion> funciones = this.clienteServicio.obtener_funciones_ciudad(idCiudad.intValue());
+            response.put("funciones", funciones);
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+        }catch(Exception e) {
+            response.put("mensaje", "Error al encontrar las funciones");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/ciudades/")
+    public ResponseEntity<?> buscarCiudades() {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            List<Ciudad> ciudades = this.adminServicio.obtener_ciudades();
+            response.put("ciudades", ciudades);
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+        }catch(Exception e) {
+            response.put("mensaje", "Error al encontrar las ciudades");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/teatros/")
+    public ResponseEntity<?> buscarTeatros() {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            List<Teatro> teatros = this.adminTeatroServicio.listarTeatros();
+            response.put("teatros", teatros);
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+        }catch(Exception e) {
+            response.put("mensaje", "Error al encontrar los teatros");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/confiteria")
+    @PreAuthorize("hasRole('CLIENTE')")
+    public ResponseEntity<?> obtener_confiterias(){
+        Map<String, Object> response = new HashMap<>();
+
+        try{
+            List<Confiteria> confiterias = this.adminServicio.listarConfiteria();
+            response.put("confiterias", confiterias);
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+        }catch(Exception e){
+            response.put("mensaje", "Error al obtener las confiterias");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/combos")
+    @PreAuthorize("hasRole('CLIENTE')")
+    public ResponseEntity<?> obtener_combos(){
+        Map<String, Object> response = new HashMap<>();
+
+        try{
+            List<Combo> combos = this.adminServicio.listarCombos();
+            response.put("combos", combos);
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+        }catch(Exception e){
+            response.put("mensaje", "Error al obtener los combos");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
     }
 
     @PostMapping(value = "/registro/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -131,6 +258,7 @@ public class ClienteController {
         return username_enc;
     }
 
+    @PreAuthorize("hasRole('CLIENTE')")
     @PutMapping(value = "/actualizacion/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(code = HttpStatus.CREATED)
     public ResponseEntity<Map<String, Object>> actualizarCliente(@RequestParam(name = "imagen") @Size(min = 1) MultipartFile imagen, @RequestPart(name = "cliente") String cliente) {
@@ -147,24 +275,10 @@ public class ClienteController {
         }
 
         try {
+            if(imagen.isEmpty()){
+                imagen = null;
+            }
             Cliente clienteActual = this.clienteServicio.actualizarCliente(cliente_nuevo, imagen);
-            response.put("mensaje", "El cliente ha sido actualizado con éxito!");
-            response.put("cliente", clienteActual);
-            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
-        } catch (Exception e) {
-            response.put("mensaje", "Error al actualizar el cliente");
-            response.put("error", e.getMessage());
-            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @PutMapping("/actualizacion-data/")
-    @ResponseStatus(code = HttpStatus.CREATED)
-    public ResponseEntity<Map<String, Object>> actualizarCliente(@RequestBody Cliente cliente) {
-        Map<String, Object> response = new HashMap<>();
-
-        try {
-            Cliente clienteActual = this.clienteServicio.actualizarCliente(cliente, null);
             response.put("mensaje", "El cliente ha sido actualizado con éxito!");
             response.put("cliente", clienteActual);
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
@@ -208,6 +322,46 @@ public class ClienteController {
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('CLIENTE')")
+    @PostMapping("/compras/")
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public ResponseEntity<?> crearCompra(@RequestBody Compra compra){
+        Map<String, Object> response = new HashMap<>();
+
+        logger.info("Creando compra... " + compra);
+
+        try {
+            Compra nueva = this.clienteServicio.registrarCompra(compra);
+            response.put("compra", nueva);
+            response.put("mensaje", "La compra ha sido registrada con exito!");
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
+        } catch (Exception e) {
+            response.put("mensaje", "Error al registrar la compra");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PreAuthorize("hasRole('CLIENTE')")
+    @PostMapping("/cupon/{id}")
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public ResponseEntity<?> redimirCupon(@PathVariable Long id){
+        Map<String, Object> response = new HashMap<>();
+
+        logger.info("Redimiendo cupon... " + id);
+
+        try {
+            Optional<Cupon> cupon = this.clienteServicio.redimirCupon(id.intValue());
+            response.put("cupon", cupon);
+            response.put("mensaje", "Cupon redimido con exito!");
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
+        } catch (Exception e) {
+            response.put("mensaje", "Error al redimir el cupon");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
+    }
+
     @GetMapping("/peliculas/")
     public ResponseEntity<?> obtenerPeliculas(){
         Map<String, Object> response = new HashMap<>();
@@ -243,6 +397,42 @@ public class ClienteController {
         }
     }
 
+    @GetMapping("/recuperar-cuenta/{str}")
+    public ResponseEntity<?> recuperarCuenta(@PathVariable String str){
+        Map<String, Object> response = new HashMap<>();
+        try{
+            String correo = EncriptacionUtil.encrypt(str);
+            this.emailServicio.enviarEmail("Recuperacion de cuenta en Unicine", correo, str);
+            response.put("mensaje", "Si el correo pertenece a una cuenta registrada en Unicine, le llegara un correo para recuperar la contraseña");
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+        }catch(Exception e){
+            response.put("mensaje", "Error en la recuperacion de la cuenta");
+            response.put("error", "Vuelva a intentar recuperar la cuenta");
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/verificar-cuenta/{str}")
+    public ResponseEntity<?> verificarCuenta(@PathVariable String str){
+        Map<String, Object> response = new HashMap<>();
+        try{
+            String correo = EncriptacionUtil.decrypt(str);
+            if(correo != null){
+                Optional<Cliente> cliente = this.clienteRepo.findByCorreo(correo);
+                response.put("mensaje", "La cuenta ha sido verificada");
+                response.put("cliente", cliente);
+                return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+            }else{
+                response.put("mensaje", "Error en la verificacion de la cuenta");
+                response.put("error", "No se ha encontrado el cliente");
+                return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+            }
+        }catch(Exception e){
+            response.put("mensaje", "Error en la verificacion de la cuenta");
+            response.put("error", "No se ha encontrado el cliente");
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
+    }
 
     @PostMapping("/login/")
     @ResponseStatus(code = HttpStatus.OK)

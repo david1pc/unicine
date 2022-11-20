@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -48,6 +49,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint, Se
             String jwtToken = EncriptacionUtil.decrypt(encryptedJwtToken);
             try{
                 Boolean estadoExpiracion = jwtTokenUtil.isTokenExpired(jwtToken);
+                logger.info("Estado de expiracion: " + estadoExpiracion);
                 respuesta.put("mensaje", "No estas autorizado para hacer esta transaccion.");
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             }catch(ExpiredJwtException e){
@@ -65,8 +67,27 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint, Se
         logger.error("AccessDenied error: {}", accessDeniedException.getMessage());
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
-        Map<String, String> respuesta = new HashMap<>();
-        respuesta.put("mensaje", "No estas autorizado para hacer esta transaccion.");
+        Map<String, Object> respuesta = new HashMap<>();
+        String tokenFromRequest = request.getHeader("Authorization");
+        String encryptedJwtToken = tokenFromRequest.substring(7);
+
+        if(encryptedJwtToken.equals("null")){
+            respuesta.put("mensaje", "No estas autorizado para hacer esta transaccion.");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        }else{
+            String jwtToken = EncriptacionUtil.decrypt(encryptedJwtToken);
+            try{
+                Boolean estadoExpiracion = jwtTokenUtil.isTokenExpired(jwtToken);
+                logger.info("Estado de expiracion: " + estadoExpiracion);
+                respuesta.put("mensaje", "No estas autorizado para hacer esta transaccion.");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            }catch(ExpiredJwtException e){
+                respuesta.put("mensaje", "La sesion ha expirado, vuelva a iniciar sesion");
+                respuesta.put("estadoExpiracion", true);
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            }
+        }
+
         response.getWriter().write(convertObjectToJson(respuesta));
     }
 

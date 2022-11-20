@@ -18,6 +18,7 @@ public class DistribucionSillas implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer codigo;
+    @Column(length = 1000)
     private String esquema;
     private Integer total_sillas;
     private Integer filas;
