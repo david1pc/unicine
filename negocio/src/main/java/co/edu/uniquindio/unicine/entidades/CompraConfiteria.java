@@ -24,6 +24,5 @@ public class CompraConfiteria implements Serializable {
     @JsonIgnore
     private Compra compra;
     @ManyToOne
-    @JsonIgnore
     private Confiteria confiteria;
 }

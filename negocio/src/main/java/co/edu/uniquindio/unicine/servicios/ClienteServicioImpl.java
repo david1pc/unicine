@@ -292,8 +292,31 @@ public class ClienteServicioImpl implements ClienteServicio {
             throw new Exception(e.getMessage());
         }
 
+        if(compra_actualizada.getEntradas().size() > 0) {
+            for(int i = 0; i<compra_actualizada.getEntradas().size(); i++){
+                compra_actualizada.getEntradas().get(i).setCompra(compra_actualizada);
+            }
+        }
+
+        if(compra_actualizada.getCompraCombos().size() > 0) {
+            for(int i = 0; i<compra_actualizada.getCompraCombos().size(); i++){
+                compra_actualizada.getCompraCombos().get(i).setCompra(compra_actualizada);
+            }
+        }
+
+        if(compra_actualizada.getCompraCombos().size() > 0) {
+            for(int i = 0; i<compra_actualizada.getCompraConfiterias().size(); i++){
+                compra_actualizada.getCompraConfiterias().get(i).setCompra(compra_actualizada);
+            }
+        }
+
+        if(compra_actualizada.getCuponCliente() != null){
+            compra_actualizada.getCuponCliente().setCliente(compra_actualizada.getCliente());
+        }
+
         try{
-            DistribucionSillas dist = this.adminTeatroServicio.actualizarDistribucionSillas(compra.getFuncion().getSala().getDistribucionSillas());
+            crearDetallesCompra(compra_actualizada);
+            this.adminTeatroServicio.actualizarDistribucionSillas(compra.getFuncion().getSala().getDistribucionSillas());
         }catch(Exception e){
             throw new Exception(e.getMessage());
         }
@@ -301,68 +324,144 @@ public class ClienteServicioImpl implements ClienteServicio {
         return compraRepo.save(compra_actualizada);
     }
 
+    private Compra crearDetallesCompra(Compra compra) throws Exception {
+        List<Entrada> entradas = new ArrayList<>();
+
+        if(compra.getEntradas() != null && !compra.getEntradas().isEmpty()){
+            for(Entrada entrada : compra.getEntradas()){
+                Entrada entradaNew = crearEntrada(entrada);
+                entradas.add(entradaNew);
+            }
+            compra.setEntradas(entradas);
+        }
+
+        List<CompraCombo> comprasCombos = new ArrayList<>();
+
+        if(!compra.getCompraCombos().isEmpty() && compra.getCompraCombos() != null){
+            for(CompraCombo compraCombo : compra.getCompraCombos()){
+                CompraCombo compraCon = crearCompraCombo(compraCombo);
+                comprasCombos.add(compraCon);
+            }
+            compra.setCompraCombos(comprasCombos);
+        }
+
+        List<CompraConfiteria> comprasConfiterias = new ArrayList<>();
+
+        if(!compra.getCompraConfiterias().isEmpty() && compra.getCompraConfiterias() != null){
+            for(CompraConfiteria compraConfiteria : compra.getCompraConfiterias()){
+                CompraConfiteria compraConf = crearCompraConfiteria(compraConfiteria);
+                comprasConfiterias.add(compraConf);
+            }
+            compra.setCompraConfiterias(comprasConfiterias);
+        }
+
+        return compra;
+    }
+
     private Compra calcularCostoTotalVenta(Compra compra) throws Exception {
+        logger.info("Compra: " + compra.toString());
        try{
-           this.adminTeatroServicio.obtenerFuncion(compra.getCodigo());
+           this.adminTeatroServicio.obtenerFuncion(compra.getFuncion().getCodigo());
        }catch(Exception e){
            throw new Exception(e.getMessage());
        }
 
-       Double precioTotalEntradas = 0.0;
-       List<Entrada> entradas = new ArrayList<>();
+       double precioTotalEntradas = 0;
 
-       if(compra.getEntradas() != null && !compra.getEntradas().isEmpty()){
-           for(Entrada entrada : compra.getEntradas()){
-               precioTotalEntradas+=entrada.getPrecio();
-               Entrada entradaNew = crearEntrada(entrada);
-               entradas.add(entradaNew);
+       if(compra.getEntradas().size() > 0){
+           for(int i = 0; i<compra.getEntradas().size(); i++){
+               precioTotalEntradas+= compra.getEntradas().get(i).getPrecio().doubleValue();
            }
-           compra.setEntradas(entradas);
        }
 
        Double precioCombos = 0.0;
-       List<CompraCombo> comprasCombos = new ArrayList<>();
 
-       if(!compra.getCompraCombos().isEmpty() && compra.getCompraCombos() != null){
+       if(compra.getCompraCombos().size() > 0){
            for(CompraCombo compraCombo : compra.getCompraCombos()){
                 precioCombos+=compraCombo.getPrecio() * compraCombo.getCantidad();
-               CompraCombo compraCon = crearCompraCombo(compraCombo);
-               comprasCombos.add(compraCon);
            }
-           compra.setCompraCombos(comprasCombos);
        }
 
        Double precioConfiteria = 0.0;
-       List<CompraConfiteria> comprasConfiterias = new ArrayList<>();
 
-       if(!compra.getCompraConfiterias().isEmpty() && compra.getCompraConfiterias() != null){
+       if(compra.getCompraConfiterias().size() > 0){
            for(CompraConfiteria compraConfiteria : compra.getCompraConfiterias()){
                precioConfiteria += compraConfiteria.getPrecio() * compraConfiteria.getCantidad();
-               CompraConfiteria compraConf = crearCompraConfiteria(compraConfiteria);
-               comprasConfiterias.add(compraConf);
            }
-           compra.setCompraConfiterias(comprasConfiterias);
        }
 
        Optional<Cupon> cupon = null;
 
        if(compra.getCuponCliente() != null){
            cupon = redimirCupon(compra.getCuponCliente().getCupon().getCodigo());
-           CuponCliente cuponCli = crearCuponCliente(compra.getCuponCliente());
-           compra.setCuponCliente(cuponCli);
        }
-
 
        Double precio = (precioTotalEntradas + precioCombos + precioConfiteria);
        Double valor_total = precio;
 
-       if(cupon != null && !cupon.isEmpty()){
-           valor_total = valor_total - (valor_total * cupon.get().getDescuento());
+       if(cupon == null || cupon.isEmpty()){
+           compra.setValor_total(valor_total);
+           return this.compraRepo.save(compra);
        }
 
-       compra.setValor_total(valor_total);
+       List<String> criteriosValidos = new ArrayList<>();
+       criteriosValidos.add("G");
+       criteriosValidos.add("E");
+       criteriosValidos.add("C");
+       criteriosValidos.add("CO");
 
-       return compra;
+       List<String> criteriosCupon = List.of(cupon.get().getCriterio().split(" "));
+       Double totalSinDescuentoComprasConfiteria = 0.0;
+       Double totalSinDescuentoComprasCombos = 0.0;
+       Double totalSinDescuentoEntradas = 0.0;
+       Double totalSinDescuentoCompra = 0.0;
+
+       for(int i = 0; i < criteriosCupon.size(); i++){
+           for(int j = 0; j < criteriosValidos.size(); j++){
+               if (criteriosCupon.get(i).equals(criteriosValidos.get(j))) {
+                   if (criteriosCupon.get(i).equals("C")) {
+                       totalSinDescuentoComprasConfiteria = precioConfiteria;
+                       precioConfiteria = precioConfiteria - (precioConfiteria * (cupon.get().getDescuento().doubleValue() / 100));
+                       valor_total -= totalSinDescuentoComprasConfiteria;
+                       valor_total += precioConfiteria;
+                   } else if (criteriosCupon.get(i).equals("E")) {
+                       totalSinDescuentoEntradas = precioTotalEntradas;
+                       precioTotalEntradas = precioTotalEntradas - (precioTotalEntradas * (cupon.get().getDescuento().doubleValue() / 100));
+                       valor_total -= totalSinDescuentoEntradas;
+                       valor_total += precioTotalEntradas;
+                   } else if (criteriosCupon.get(i).equals("G")) {
+                       totalSinDescuentoComprasConfiteria = precioConfiteria;
+                       Double calculo = precioConfiteria - (precioConfiteria * (cupon.get().getDescuento().doubleValue() / 100));
+                       precioConfiteria = precioConfiteria - (precioConfiteria * (cupon.get().getDescuento().doubleValue() / 100));
+                       totalSinDescuentoEntradas = precioTotalEntradas;
+                       precioTotalEntradas = precioTotalEntradas - (precioTotalEntradas * (cupon.get().getDescuento().doubleValue() / 100));
+                       totalSinDescuentoComprasCombos = precioCombos;
+                       precioCombos = precioCombos - (precioCombos * (cupon.get().getDescuento().doubleValue() / 100));
+                       totalSinDescuentoCompra = valor_total;
+                       valor_total = precioConfiteria + precioCombos + precioTotalEntradas;
+                   } else if (criteriosCupon.get(i).equals("CO")) {
+                       totalSinDescuentoComprasCombos = precioCombos;
+                       precioCombos = precioCombos - (precioCombos * (cupon.get().getDescuento().doubleValue() / 100));
+                       valor_total -= totalSinDescuentoComprasCombos;
+                       valor_total += precioCombos;
+                   }
+                   break;
+               }
+           }
+       }
+
+       if(compra.getValor_total().equals(valor_total)){
+
+           compra.setValor_total(valor_total);
+
+           CuponCliente cuponCli = crearCuponCliente(compra.getCuponCliente());
+           compra.setCuponCliente(cuponCli);
+
+           return this.compraRepo.save(compra);
+       }else{
+           logger.info("17. " + valor_total);
+           throw new Exception("Los datos enviados no son validos.");
+       }
     }
 
 

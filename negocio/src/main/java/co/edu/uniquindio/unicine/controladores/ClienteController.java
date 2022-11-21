@@ -5,6 +5,7 @@ import co.edu.uniquindio.unicine.repo.ClienteRepo;
 import co.edu.uniquindio.unicine.servicios.*;
 import co.edu.uniquindio.unicine.util.EncriptacionUtil;
 import co.edu.uniquindio.unicine.util.JwtTokenUtil;
+import co.edu.uniquindio.unicine.util.QrUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.logging.Log;
@@ -26,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -325,14 +327,28 @@ public class ClienteController {
     @PreAuthorize("hasRole('CLIENTE')")
     @PostMapping("/compras/")
     @ResponseStatus(code = HttpStatus.CREATED)
-    public ResponseEntity<?> crearCompra(@RequestBody Compra compra){
+    public ResponseEntity<?> crearCompra(@RequestBody NuevaCompra compra){
         Map<String, Object> response = new HashMap<>();
 
-        logger.info("Creando compra... " + compra);
-
         try {
-            Compra nueva = this.clienteServicio.registrarCompra(compra);
-            response.put("compra", nueva);
+            Optional<Cliente> cliente = this.clienteRepo.findByUsername(compra.getUsername());
+            Compra nueva = new Compra(MedioPago.valueOf(compra.getMedioPago()), compra.getFecha_compra(), compra.getValor_total(), compra.getFuncion(), compra.getCompraCombos(), compra.getCompraConfiterias(), compra.getEntradas(), cliente.get(), compra.getCuponCliente());
+            nueva.setCompraCombos(compra.getCompraCombos());
+            nueva.setCuponCliente(compra.getCuponCliente());
+            nueva.getCuponCliente().setCupon(compra.getCuponCliente().getCupon());
+            nueva.setCompraConfiterias(compra.getCompraConfiterias());
+            nueva.setEntradas(compra.getEntradas());
+            Compra compra_registrada = this.clienteServicio.registrarCompra(nueva);
+            this.emailServicio.enviarEmail("Nuevo registro de compra en unicine", compra.getContenido(), cliente.get().getCorreo());
+            Optional<Cliente> cliente_update = this.clienteRepo.findByUsername(compra.getUsername());
+            if(cliente_update.get().getCompras().size() == 1){
+                LocalDate fechaVencimiento = LocalDate.now();
+                LocalDate nuevaFecha = fechaVencimiento.plusDays(15);
+                Cupon nuevo_cupon = new Cupon(0, "PRIMERA COMPRA EN UNICINE", 10, "G", nuevaFecha);
+                Cupon cupon = this.adminServicio.crearCupon(nuevo_cupon);
+                this.emailServicio.enviarEmail("Cupon de primera compra en Unicine", "Gracias por comprar con nosotros, te regalamos un cupon para compras generales(confiteria, entradas y combos) para redimirlo en nuestro sitio web.\n Codigo del cupon: " + cupon.getCodigo(), cliente.get().getCorreo());
+            }
+            response.put("compra", compra_registrada);
             response.put("mensaje", "La compra ha sido registrada con exito!");
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
         } catch (Exception e) {
@@ -343,8 +359,8 @@ public class ClienteController {
     }
 
     @PreAuthorize("hasRole('CLIENTE')")
-    @PostMapping("/cupon/{id}")
-    @ResponseStatus(code = HttpStatus.CREATED)
+    @GetMapping("/cupon/{id}")
+    @ResponseStatus(code = HttpStatus.OK)
     public ResponseEntity<?> redimirCupon(@PathVariable Long id){
         Map<String, Object> response = new HashMap<>();
 
@@ -357,6 +373,30 @@ public class ClienteController {
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
         } catch (Exception e) {
             response.put("mensaje", "Error al redimir el cupon");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PreAuthorize("hasRole('CLIENTE')")
+    @PostMapping("/entradas/")
+    @ResponseStatus(code = HttpStatus.OK)
+    public ResponseEntity<?> generarQREntradas(@RequestBody EntradaQR entradaQR[]){
+        Map<String, Object> response = new HashMap<>();
+        List<byte[]> barcode = new ArrayList<>();
+
+        logger.info("Generando codigo QR... " + entradaQR);
+
+        try {
+            for(EntradaQR ent : entradaQR){
+                byte[] barcodeg = QrUtil.generateByteQRCode(ent.getInd() + ent.getColumna().toString() + ent.getFila().toString(), 250,250);
+                barcode.add(barcodeg);
+            }
+            response.put("barcode", barcode);
+            response.put("mensaje", "QR generado con exito!");
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.put("mensaje", "Error al generar el codigo QR");
             response.put("error", e.getMessage());
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
         }
@@ -387,6 +427,11 @@ public class ClienteController {
             Optional<Cliente> cliente = this.clienteRepo.findByUsername(username);
             cliente.get().setEstado(true);
             this.clienteRepo.save(cliente.get());
+            LocalDate fechaVencimiento = LocalDate.now();
+            LocalDate nuevaFecha = fechaVencimiento.plusDays(15);
+            Cupon nuevo_cupon = new Cupon(0, "BIENVENIDA A UNICINE", 10, "G", nuevaFecha);
+            Cupon cupon = this.adminServicio.crearCupon(nuevo_cupon);
+            this.emailServicio.enviarEmail("Cupon de bienvenida a Unicine", "Gracias por registrarte en unicine, te regalamos un cupon de bienvenida para compras generales(confiteria, combos y entradas) para redimirlo en nuestro sitio web.\n Codigo del cupon: " + cupon.getCodigo(), cliente.get().getCorreo());
             response.put("mensaje", "Su cuenta ha sido activada con exito");
             response.put("estado", true);
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);

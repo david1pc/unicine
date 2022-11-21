@@ -57,4 +57,12 @@ public class Compra implements Serializable {
         this.cuponCliente = cuponCliente;
         this.cliente = cliente;
     }
+
+    public Compra(MedioPago medioPago, LocalDate fecha_compra, Double valor_total, Funcion funcion, List<CompraCombo> compraCombos, List<CompraConfiteria> compraConfiterias, List<Entrada> entradas, Cliente cliente, CuponCliente cuponCliente) {
+        this.medioPago = medioPago;
+        this.fecha_compra = fecha_compra;
+        this.valor_total = valor_total;
+        this.funcion = funcion;
+        this.cliente = cliente;
+    }
 }

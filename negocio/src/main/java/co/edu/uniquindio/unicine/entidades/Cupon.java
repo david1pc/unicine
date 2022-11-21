@@ -23,6 +23,7 @@ public class Cupon implements Serializable {
     private String criterio;
     private LocalDate vencimiento;
     @ToString.Exclude
+    @JsonIgnore
     @OneToMany(mappedBy = "cupon")
     private List<CuponCliente>cuponClientes;
 
@@ -34,5 +35,13 @@ public class Cupon implements Serializable {
         this.criterio = criterio;
         this.vencimiento = vencimiento;
         this.cuponClientes = cuponClientes;
+    }
+
+    public Cupon(Integer codigo, String descripcion, Integer descuento, String criterio, LocalDate vencimiento) {
+        this.codigo = codigo;
+        this.descripcion = descripcion;
+        this.descuento = descuento;
+        this.criterio = criterio;
+        this.vencimiento = vencimiento;
     }
 }

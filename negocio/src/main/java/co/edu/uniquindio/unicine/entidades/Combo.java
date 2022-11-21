@@ -1,5 +1,6 @@
 package co.edu.uniquindio.unicine.entidades;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -25,6 +26,7 @@ public class Combo implements Serializable {
     @OneToOne
     private Imagen imagen;
     @ToString.Exclude
+    @JsonIgnore
     @OneToMany(mappedBy = "combo")
     private List<CompraCombo> compraCombos;
 

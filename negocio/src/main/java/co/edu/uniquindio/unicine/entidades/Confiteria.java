@@ -1,5 +1,6 @@
 package co.edu.uniquindio.unicine.entidades;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -24,6 +25,7 @@ public class Confiteria implements Serializable {
     @OneToOne
     private Imagen imagen;
     @ToString.Exclude
+    @JsonIgnore
     @OneToMany(mappedBy = "confiteria")
     private List<CompraConfiteria>compraConfiterias;
 

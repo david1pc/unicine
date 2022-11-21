@@ -24,6 +24,5 @@ public class CompraCombo implements Serializable {
     @JsonIgnore
     private Compra compra;
     @ManyToOne
-    @JsonIgnore
     private Combo combo;
 }

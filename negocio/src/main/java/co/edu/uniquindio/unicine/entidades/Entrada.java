@@ -18,7 +18,7 @@ public class Entrada  implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer codigo;
     private Double precio;
-    private Character fila;
+    private Integer fila;
     private Integer columna;
     @ManyToOne
     @JsonIgnore

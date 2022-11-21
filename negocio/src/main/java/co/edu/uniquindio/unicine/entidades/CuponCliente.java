@@ -20,7 +20,6 @@ public class CuponCliente implements Serializable {
     private Integer codigo;
     private Boolean estado;
     @ManyToOne
-    @JsonIgnore
     private Cupon cupon;
     @ManyToOne
     @JsonIgnore
