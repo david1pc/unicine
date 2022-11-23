@@ -43,7 +43,6 @@ public class Compra implements Serializable {
     private List<CompraCombo>compraCombos;
 
     @OneToOne
-    @JsonIgnore
     private CuponCliente cuponCliente;
     @ManyToOne
     @JsonIgnore

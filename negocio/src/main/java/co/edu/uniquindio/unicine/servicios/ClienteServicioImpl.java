@@ -241,7 +241,7 @@ public class ClienteServicioImpl implements ClienteServicio {
         }
     }
 
-    private Cliente actualizarClienteVerificado(Cliente cliente, String passwdEnc){
+    public Cliente actualizarClienteVerificado(Cliente cliente, String passwdEnc){
         boolean isPasswd = cliente.getPassword().equals(passwdEnc);
         if(!isPasswd){
             cliente.setPassword(passwordEncoder.encode(cliente.getPassword()));
@@ -270,6 +270,17 @@ public class ClienteServicioImpl implements ClienteServicio {
     @Override
     public List<Compra> listarHistorialCompras(Integer codigoCliente) throws Exception {
         Optional<Cliente> cliente = clienteRepo.findById(codigoCliente);
+
+        if(cliente.isEmpty()){
+            throw new Exception("El cliente no existe");
+        }
+
+        return clienteRepo.obtenerCompras(cliente.get().getCorreo());
+    }
+
+    @Override
+    public List<Compra> listarHistorialComprasUsername(String username) throws Exception {
+        Optional<Cliente> cliente = clienteRepo.findByUsername(username);
 
         if(cliente.isEmpty()){
             throw new Exception("El cliente no existe");

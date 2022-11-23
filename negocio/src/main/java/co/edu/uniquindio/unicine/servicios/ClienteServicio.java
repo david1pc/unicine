@@ -21,6 +21,7 @@ public interface ClienteServicio {
     void eliminarCliente(Integer codigoCliente) throws Exception;
     List<Cliente> listarClientes();
     List<Compra> listarHistorialCompras(Integer codigoCliente) throws Exception;
+    List<Compra> listarHistorialComprasUsername(String username) throws Exception;
     Compra registrarCompra(Compra compra) throws Exception;
     Optional<Cupon> redimirCupon(Integer codigoCupon) throws Exception;
 
@@ -41,4 +42,5 @@ public interface ClienteServicio {
     CompraConfiteria crearCompraConfiteria(CompraConfiteria compraConfiteria) throws Exception;
 
     CuponCliente crearCuponCliente(CuponCliente cuponCliente) throws Exception;
+    Cliente actualizarClienteVerificado(Cliente cliente, String passwdEnc) throws Exception;
 }

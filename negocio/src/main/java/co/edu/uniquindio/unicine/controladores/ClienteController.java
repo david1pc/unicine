@@ -325,6 +325,23 @@ public class ClienteController {
     }
 
     @PreAuthorize("hasRole('CLIENTE')")
+    @GetMapping("/compras-cliente/{username}")
+    public ResponseEntity<?> verComprasCliente(@PathVariable String username){
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            List<Compra> compras = this.clienteServicio.listarHistorialComprasUsername(username);
+            response.put("compras", compras);
+        } catch (Exception e) {
+            response.put("mensaje", "Error al buscar el historial de compras");
+            response.put("error", e.getMessage());
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasRole('CLIENTE')")
     @PostMapping("/compras/")
     @ResponseStatus(code = HttpStatus.CREATED)
     public ResponseEntity<?> crearCompra(@RequestBody NuevaCompra compra){
@@ -333,11 +350,22 @@ public class ClienteController {
         try {
             Optional<Cliente> cliente = this.clienteRepo.findByUsername(compra.getUsername());
             Compra nueva = new Compra(MedioPago.valueOf(compra.getMedioPago()), compra.getFecha_compra(), compra.getValor_total(), compra.getFuncion(), compra.getCompraCombos(), compra.getCompraConfiterias(), compra.getEntradas(), cliente.get(), compra.getCuponCliente());
-            nueva.setCompraCombos(compra.getCompraCombos());
-            nueva.setCuponCliente(compra.getCuponCliente());
-            nueva.getCuponCliente().setCupon(compra.getCuponCliente().getCupon());
-            nueva.setCompraConfiterias(compra.getCompraConfiterias());
-            nueva.setEntradas(compra.getEntradas());
+            if(compra.getCompraCombos() != null){
+                nueva.setCompraCombos(compra.getCompraCombos());
+            }
+            if(compra.getCuponCliente() != null){
+                nueva.setCuponCliente(compra.getCuponCliente());
+                nueva.getCuponCliente().setCupon(compra.getCuponCliente().getCupon());
+            }
+
+            if(compra.getCompraConfiterias() != null){
+                nueva.setCompraConfiterias(compra.getCompraConfiterias());
+            }
+
+            if(compra.getEntradas() != null){
+                nueva.setEntradas(compra.getEntradas());
+            }
+
             Compra compra_registrada = this.clienteServicio.registrarCompra(nueva);
             this.emailServicio.enviarEmail("Nuevo registro de compra en unicine", compra.getContenido(), cliente.get().getCorreo());
             Optional<Cliente> cliente_update = this.clienteRepo.findByUsername(compra.getUsername());
@@ -447,7 +475,8 @@ public class ClienteController {
         Map<String, Object> response = new HashMap<>();
         try{
             String correo = EncriptacionUtil.encrypt(str);
-            this.emailServicio.enviarEmail("Recuperacion de cuenta en Unicine", correo, str);
+            String ruta = this.devRoute.concat("auth/recuperacion/"+correo);
+            this.emailServicio.enviarEmail("Recuperacion de cuenta en Unicine", ruta, str);
             response.put("mensaje", "Si el correo pertenece a una cuenta registrada en Unicine, le llegara un correo para recuperar la contraseña");
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
         }catch(Exception e){
@@ -457,15 +486,18 @@ public class ClienteController {
         }
     }
 
-    @GetMapping("/verificar-cuenta/{str}")
-    public ResponseEntity<?> verificarCuenta(@PathVariable String str){
+    @PostMapping("/verificar-cuenta/{str}")
+    public ResponseEntity<?> verificarCuenta(@PathVariable String str, @RequestBody String passwd){
         Map<String, Object> response = new HashMap<>();
         try{
             String correo = EncriptacionUtil.decrypt(str);
             if(correo != null){
                 Optional<Cliente> cliente = this.clienteRepo.findByCorreo(correo);
+                String passwdEnc = cliente.get().getPassword();
+                cliente.get().setPassword(passwd);
+                Cliente clienteActualizado = this.clienteServicio.actualizarClienteVerificado(cliente.get(), passwdEnc);
                 response.put("mensaje", "La cuenta ha sido verificada");
-                response.put("cliente", cliente);
+                response.put("cliente", clienteActualizado);
                 return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
             }else{
                 response.put("mensaje", "Error en la verificacion de la cuenta");
