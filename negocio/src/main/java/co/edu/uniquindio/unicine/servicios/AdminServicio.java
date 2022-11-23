@@ -56,6 +56,7 @@ public interface AdminServicio {
     void eliminarAdministradorTeatro (Integer codigo)throws Exception;
     List <AdministradorTeatro> listarAdministradoresTeatro () throws Exception;
     AdministradorTeatro obtenerAdministradorTeatro (Integer codigo)throws Exception;
-
+    Administrador crearAdministrador(Administrador administrador)throws Exception;
+    Rol crearRol(Rol rol) throws Exception;
 
 }

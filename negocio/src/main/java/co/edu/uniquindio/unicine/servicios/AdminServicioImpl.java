@@ -28,6 +28,7 @@ public class AdminServicioImpl implements AdminServicio  {
      private ClienteRepo clienteRepo;
      private AdministradorRepo adminRepo;
      private ImagenRepo imagenRepo;
+     private RolRepo rolRepo;
 
      @Autowired
      CloudinaryServicio cloudinaryServicio;
@@ -35,7 +36,7 @@ public class AdminServicioImpl implements AdminServicio  {
      @Autowired
      PasswordEncoder passwordEncoder;
 
-    public AdminServicioImpl(CiudadRepo ciudadRepo, PeliculaRepo peliculaRepo, CuponRepo cuponRepo, ConfiteriaRepo confiteriaRepo, ComboRepo comboRepo, AdministradorTeatroRepo administradorTeatroRepo, ClienteServicio clienteServicio, ClienteRepo clienteRepo, AdministradorRepo administradorRepo, ImagenRepo imagenRepo) {
+    public AdminServicioImpl(CiudadRepo ciudadRepo, PeliculaRepo peliculaRepo, CuponRepo cuponRepo, ConfiteriaRepo confiteriaRepo, ComboRepo comboRepo, AdministradorTeatroRepo administradorTeatroRepo, ClienteServicio clienteServicio, ClienteRepo clienteRepo, AdministradorRepo administradorRepo, ImagenRepo imagenRepo, RolRepo rolRepo) {
         this.ciudadRepo = ciudadRepo;
         this.peliculaRepo = peliculaRepo;
         this.cuponRepo = cuponRepo;
@@ -45,7 +46,7 @@ public class AdminServicioImpl implements AdminServicio  {
         this.clienteRepo = clienteRepo;
         this.adminRepo = administradorRepo;
         this.imagenRepo = imagenRepo;
-
+        this.rolRepo = rolRepo;
     }
     // gestionar ciudades
 
@@ -483,6 +484,22 @@ public class AdminServicioImpl implements AdminServicio  {
         return this.ciudadRepo.findAll();
     }
 
+    @Override
+    public Administrador crearAdministrador(Administrador administrador)throws Exception{
+        verificarCredenciales(administrador.getCorreo(), administrador.getUsername(), null);
+        try{
+            administrador.setPassword(passwordEncoder.encode(administrador.getPassword()));
+            Administrador nuevo = adminRepo.save(administrador);
+            return nuevo;
+        }catch (Exception e){
+            throw new Exception("No se ha logrado crear un administrador teatro, intentelo de nuevo.");
+        }
+    }
+
+    @Override
+    public Rol crearRol(Rol rol){
+        return rolRepo.save(rol);
+    }
 
 
 }
